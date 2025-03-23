@@ -3,6 +3,8 @@ import Welcome from '../views/Welcome/Index.vue'
 
 import ForgetPassword from '../views/UserCenter/ForgetPassword.vue'
 
+import UserSuperAdmin from '../views/UserSuperAdmin/Index.vue'
+
 import Index from '../views/Index.vue'
 
 const router = createRouter({
@@ -21,6 +23,11 @@ const router = createRouter({
       component: ForgetPassword
     },
 
+    {
+      path: '/superAdmin/user-management',
+      name: 'user-management_superAdmin',
+      component: UserSuperAdmin
+    },
     {
       path: '/',
       alias: ["/home", "/index"],

@@ -7,13 +7,23 @@
     <a-layout-sider width="200" style="background: #fff">
       <a-menu :selectedKeys="selectedKeys" v-model:openKeys="openKeys" mode="inline" :style="{ height: '100%', borderRight: 0 }">
         <div v-for="(submenu, index1) in menu" :key="index1">
-          <a-menu-item v-if="submenu.items == undefined" :key="index1.toString()" @click="router.push({ name: submenu.name })">
+          <a-menu-item 
+            v-if="submenu.items == undefined" 
+            :key="index1.toString()" 
+            @click="goToPage(submenu)"
+            >
+            <!-- @click="router.push({ name: submenu.name })" -->
             <template #icon>
               <font-awesome-icon :icon="submenu.icon" />
             </template>
             {{ submenu.label }}
           </a-menu-item>
-          <a-sub-menu :key="index1.toString()" v-if="submenu.items != undefined" :title="submenu.label">
+          
+          <a-sub-menu 
+            :key="index1.toString()" 
+            v-if="submenu.items != undefined" 
+            :title="submenu.label"
+            >
             <template #icon>
               <font-awesome-icon :icon="submenu.icon" />
               {{ submenu.label }}
@@ -21,8 +31,9 @@
             <a-menu-item
               :key="index1 + '-' + index2"
               v-for="(item, index2) in submenu.items.filter((item) => item.role == null || (item.role != null && item.role == role))"
-              @click="router.push({ name: item.name })"
+              @click="goToPage(item)"
             >
+              <!-- @click="router.push({ name: submenu.name })" -->
               {{ item.label }}
             </a-menu-item>
           </a-sub-menu>
@@ -52,6 +63,10 @@
     </a-layout>
   </a-layout>
 </template>
+
+
+
+
 <script setup>
 import { ref, defineProps, onMounted } from 'vue';
 import Navbar from '@/components/base/nav/Navbar.vue';
@@ -69,7 +84,7 @@ const menu = [
     name: 'Welcome',
   },
   {
-    label: 'Test A',
+    label: '文档管理',
     icon: ['fas', 'book'],
     items: [
       {
@@ -82,7 +97,7 @@ const menu = [
     ],
   },
   {
-    label: 'Test B',
+    label: '用户管理',
     icon: ['fas', 'user'],
     items: [
       {
@@ -90,9 +105,10 @@ const menu = [
         name: 'Test B-1',
       },
       {
-        label: 'Test B-2',
-        name: 'Test B-2',
-        role: 'superadmin',
+        label: '超级管理员页面',
+        name: 'user-management_superAdmin',
+        routeName: 'user-management_superAdmin',
+        // role: 'superadmin',
       },
     ],
   },
@@ -115,6 +131,18 @@ onMounted(() => {
     selectedKeys.value.push(props.selectedKey[0]);
   }
 });
+
+// 统一处理跳转逻辑
+const goToPage = (menuItem) => {
+  // console.log(11111);
+  if (menuItem.routeName) {
+    router.push({ name: menuItem.routeName });
+    // console.log(menuItem.routeName);
+  } else if (menuItem.name) {
+    router.push({ name: menuItem.name });
+  }
+  // console.log(menuItem);
+};
 
 const about = () => {
   Modal.info({

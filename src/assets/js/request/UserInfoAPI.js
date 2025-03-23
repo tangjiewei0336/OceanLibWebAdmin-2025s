@@ -9,10 +9,8 @@ export async function login(username, password) {
     let data = null;
     await axiosPlugin({
         method: "post",
+        // url: "adminInfo/login",
         url: module + "/login",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-        },
         data: qs.stringify({
             username: username,
             password: password,
@@ -30,6 +28,65 @@ export async function login(username, password) {
     });
     return data;
 }
+
+// 获取符合参数的用户信息列表，根据参数
+export async function getManageInfo(params = {}, pageSize, pageNum) {
+    let data = null;
+    await axiosPlugin({
+        method: "get",
+        url: module + "/getManageInfo",
+        data: {
+            ...params,
+            pageSize: pageSize,
+            pageNum: pageNum,
+        },
+    }).then((response) => {
+        data = response.data.msg;
+        localStorage.setItem("current_usersInfo", JSON.stringify(data));
+        message.success('用户信息查询成功');
+    }).catch((response) => errorHandler(response));
+    return data;
+}
+
+// 更新用户名为username的用户信息，根据其他参数
+export async function update(username, params_obj = {}) {
+    let data = null;
+    await axiosPlugin({
+        method: "put",
+        url: module + "/update",
+        params: {
+            username: username
+        },
+        data: {
+            ...params_obj
+        },
+    }).then((response) => {
+        if (response.data.state === "SUCCESS") {
+            data = response.data.msg;
+            message.success('用户信息修改成功');
+        }
+    }).catch((response) => errorHandler(response));
+    return data;
+}
+
+// 用于超级管理员删除用户
+export async function deleteForSuperAdmin(username) {
+    let data = null;
+    await axiosPlugin({
+        method: "DELETE",
+        url: module + "/delete",
+        params: {
+            username: username
+        },
+    }).then((response) => {
+        if (response.data.state === "SUCCESS") {
+            data = response.data.msg;
+            message.success('用户删除成功');
+        }
+    }).catch((response) => errorHandler(response));
+    return data;
+}
+
 
 export async function preRegister(username, password, studentName, isTeamLeader, groupName, groupDescription) {
     let data = null;
