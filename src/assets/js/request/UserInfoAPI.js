@@ -3,7 +3,7 @@ import { message } from 'ant-design-vue';
 import { errorHandler } from './common.js'
 import qs from "qs";
 
-const module = "userInfo"
+const module = "adminInfo"
 
 export async function login(username, password) {
     let data = null;
@@ -62,7 +62,7 @@ export async function getUserInfo() {
         localStorage.setItem("userInfo", JSON.stringify(data));
         message.success('用户信息已更新');
     }).catch((response) => errorHandler(response));
-    return data;
+    // return data;
 }
 
 export async function joinGroup(groupName, JoinCode) {
