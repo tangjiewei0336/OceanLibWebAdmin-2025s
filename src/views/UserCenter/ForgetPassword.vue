@@ -1,5 +1,5 @@
 <template>
-    <TestingPlatformNav :selectedKey="['3', '0']">
+    <PlatformNav :selectedKey="['3', '0']">
         <template #breadcrumb-item>
             <a-breadcrumb-item>找回密码</a-breadcrumb-item>
         </template>
@@ -23,12 +23,12 @@
                 </template>
             </a-result>
         </template>
-    </TestingPlatformNav>
+    </PlatformNav>
 </template>
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import TestingPlatformNav from '@/components/base/nav/TestingPlatformNav.vue';
+import PlatformNav from '@/components/base/nav/PlatformNav.vue';
 import ChangePassword from '@/components/UserCenter/ChangePassword.vue';
 
 
