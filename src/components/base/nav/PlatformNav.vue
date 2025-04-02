@@ -35,39 +35,35 @@ const props = defineProps(['selectedKey', 'menu', 'role']);
 const router = useRouter();
 
 const menu = [
-  {
-    label: '通知',
-    icon: ['fas', 'home'],
-    name: 'notice',
-  },
-  {
-    label: '文档审核',
-    icon: ['fas', 'book'],
-    items: [
-      {
-        label: 'Test A-1',
-        name: 'Test A-1',
-      },
-      {
-        label: 'Test A-2',
-      },
-    ],
-  },
-  {
-    label: '用户管理',
-    icon: ['fas', 'user'],
-    items: [
-      {
-        label: '一般用户管理',
-        name: 'userManage',
-      },
-      {
-        label: '管理员管理',
-        name: 'Test B-2',
-        role: 'superadmin',
-      },
-    ],
-  },
+	{
+		label: '通知',
+		icon: ['fas', 'home'],
+		row: '0',
+		name: 'Notice',
+	},
+	{
+		label: '文档审核',
+		icon: ['fas', 'book'],
+		name: 'FileList',
+		row: '1',
+	},
+	{
+		label: '用户管理',
+		icon: ['fas', 'user'],
+		items: [
+		{
+			label: '一般用户管理',
+			row: '2',
+			name: 'UserManage',
+		},
+		{
+			label: '管理员管理',
+			row: '3',
+			name: 'AdminManage',
+			role: 'superadmin',
+		},
+		],
+	},
 ];
 
 const selectedKeys = ref([]);

@@ -41,6 +41,7 @@
   // 处理菜单项点击事件
   const handleMenuItemClick = (item) => {
     if (item.name) {
+      selectedKeys.value = [item.row];
       router.push({ name: item.name });
     }
   }
