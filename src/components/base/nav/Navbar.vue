@@ -79,7 +79,7 @@
 
         <a-typography-text type="secondary">{{ userInfo.studentName }}({{ userInfo.username }}) </a-typography-text>
         <template #overlay>
-          <a-menu @click="handleMenuClick">
+          <a-menu>
             <a-menu-item key="1" @click="logout">
               <font-awesome-icon :icon="['fas', 'right-from-bracket']" />
               退出登录

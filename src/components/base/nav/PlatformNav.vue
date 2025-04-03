@@ -50,15 +50,14 @@ const menu = [
 	{
 		label: '用户管理',
 		icon: ['fas', 'user'],
+		row: '2',
 		items: [
 		{
 			label: '一般用户管理',
-			row: '2',
 			name: 'UserManage',
 		},
 		{
 			label: '管理员管理',
-			row: '3',
 			name: 'AdminManage',
 			role: 'superadmin',
 		},

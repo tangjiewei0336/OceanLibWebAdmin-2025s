@@ -44,8 +44,7 @@ const MOCK_SUCCESS_MESSAGE = [
 ]
 
 mock.onGet(module + "/getUserInfo").reply((config) => {
-    console.log("here")
     return MOCK_SUCCESS_MESSAGE;
-  });
+});
 
-  export default mock;
+export default mock;

@@ -3,6 +3,7 @@ import Welcome from '../views/Welcome/Index.vue'
 
 import ForgetPassword from '../views/UserCenter/ForgetPassword.vue'
 import Index from '../views/Index.vue'
+import Counter from '../views/Dumb/counter.vue'
 import FileList from '../views/FileManage/FileList.vue'
 
 const router = createRouter({
@@ -18,7 +19,7 @@ const router = createRouter({
 			{
 			  path: 'notice',
 			  name: 'Notice',
-			  component: FileList
+			  component: Counter
 			},
 			{
 				path: 'file_list',
@@ -28,12 +29,12 @@ const router = createRouter({
 			{
 				path: 'user_manage',
 				name: 'UserManage',
-				component: FileList
+				component: Counter
 			},
 			{
 				path: 'admin_manage',
 				name: 'AdminManage',
-				component: FileList
+				component: Counter
 			},
 		  ]
 		},
