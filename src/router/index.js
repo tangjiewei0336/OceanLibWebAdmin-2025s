@@ -3,8 +3,9 @@ import Welcome from '../views/Welcome/Index.vue'
 
 import ForgetPassword from '../views/UserCenter/ForgetPassword.vue'
 import Index from '../views/Index.vue'
-import Counter from '../views/Dumb/counter.vue'
+import Counter from '../views/Dumb/Counter.vue'
 import FileList from '../views/FileManage/FileList.vue'
+import FileReview from '../views/FileManage/FileReview.vue'
 
 const router = createRouter({
 	// history: createWebHistory(import.meta.env.BASE_URL),
@@ -25,6 +26,11 @@ const router = createRouter({
 				path: 'file_list',
 				name: 'FileList',
 				component: FileList
+			},
+			{
+				path: 'file_review/:fileID',
+				name: 'FileReview',
+				component: FileReview
 			},
 			{
 				path: 'user_manage',

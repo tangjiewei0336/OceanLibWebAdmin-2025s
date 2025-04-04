@@ -6,18 +6,18 @@ const mock = new MockAdapter(axiosPlugin);
 const generateFile = (index) => {
     // 中文人名库
     const chineseNames = [
-      '温德', '帕特', '林良军', '德克勒斯', '风云远', '赵静', '周强', 
-      '吴秀英', '', '徐美丽', '孙小红', '马超', '朱建军', '胡雪岩',
-      '林志颖', '郑成功', '谢娜', '董明珠', '曹操'
+      '温德', '帕特', '林良军', '风云远', '文正', '文杰',
+      '叶散归', '文心玥', '唐侠筱', '琳达赛', '林山', '帕莎', '宗元杰',
+      '谢缇', '琪琼', '宝光', '铁其峰', '李华', '汪海',
     ];
-    
+
     // 英文人名库
     const englishNames = [
-      'Ender Smoud', 'Emily Johnson', 'Michael Williams', 'Sarah Brown',
+      'Ender Smoud', 'Darkness', 'Michael Williams', 'Sarah Brown',
       'David Jones', 'Jennifer Garcia', 'Robert Miller', 'Lisa Davis',
       'William Rodriguez', 'Jessica Martinez'
     ];
-    
+
     // 文件类型库
     const fileTypes = [
       {type: '教辅资料', names: [
@@ -26,11 +26,11 @@ const generateFile = (index) => {
       ]},
       {type: '名家名著', names: [
         '红楼梦', '百年孤独', '活着', '三体', '小王子',
-        '傲慢与偏见', '1984', '围城'
+        '傲慢与偏见', '1984', '围城', '平凡的世界', '追风筝的人'
       ]},
       {type: '网络小说', names: [
         '斗破苍穹', '全职高手', '诡秘之主', '雪中悍刀行',
-        '大王饶命', '庆余年', '凡人修仙传'
+        '大王饶命', '庆余年', '凡人修仙传', '灾厄洪流', '银河纪实'
       ]},
       {type: '政府文件', names: [
         '关于促进经济发展的通知', '2023年度工作总结',
@@ -42,34 +42,34 @@ const generateFile = (index) => {
         '员工手册2023版', '项目立项申请书', '合作伙伴协议'
       ]}
     ];
-    
+
     // 随机选择文件类型
     const fileType = fileTypes[Math.floor(Math.random() * fileTypes.length)];
     const fileName = fileType.names[Math.floor(Math.random() * fileType.names.length)];
-    
+
     // 随机选择人名 (30%概率使用英文名)
     const useEnglishName = Math.random() < 0.3;
-    const uploader = useEnglishName 
+    const uploader = useEnglishName
       ? englishNames[Math.floor(Math.random() * englishNames.length)]
       : chineseNames[Math.floor(Math.random() * chineseNames.length)];
-    
+
     // 生成随机的上传日期 (过去3年内)
     const randomDays = Math.floor(Math.random() * 365 * 3);
     const uploadDate = new Date();
     uploadDate.setDate(uploadDate.getDate() - randomDays);
-    
+
     return {
-      fileID: index,
-      title: `${fileName}${fileType.type === '政府文件' ? '〔2023〕' + (index % 20 + 1) + '号' : ''}`,
-      uploadUsername: uploader,
-      uploadDate: uploadDate.toISOString(),
-      isApproved: index % 3 === 0 ? 0 : 1,  // 审批状态模拟
-      fileType: fileType.type,
-      fileSize: `${Math.round(Math.random() * 10 + 1)}.${Math.floor(Math.random() * 99)} MB`,
-      downloads: Math.floor(Math.random() * 1000),
-      views: Math.floor(Math.random() * 5000)
+		fileID: index,
+		title: `${fileName}${fileType.type === '政府文件' ? '〔2023〕' + (index % 20 + 1) + '号' : ''}`,
+		uploadUsername: uploader,
+		uploadDate: uploadDate.toISOString(),
+		isApproved: index % 3 === 0 ? 0 : 1,
+		fileType: fileType.type,
+		fileSize: `${Math.round(Math.random() * 10 + 1)}.${Math.floor(Math.random() * 99)} MB`,
+		downloads: Math.floor(Math.random() * 1000),
+		views: Math.floor(Math.random() * 5000)
     };
-  };
+};
 
 mock.onGet("/getNotAcceptedFileList").reply((config) => {
     const params = new URLSearchParams(config.data);
@@ -92,7 +92,67 @@ mock.onGet("/getNotAcceptedFileList").reply((config) => {
         console.error("Mock数据生成错误:", error);
         return [500, { code: "500", state: "ERROR", msg: "Mock数据生成失败" }];
     }
-    
+});
+
+mock.onGet('/docFileService/doTempFilePreview').reply((config) => {
+    return [200, { code: 0, state: "SUCCESS", msg: 'http://ocean.oriole.cn/pdfjs/web/viewer.html' }];
+});
+
+mock.onGet('/docInfoService/getFileInfoByFileID').reply(200, {
+	"state": "SUCCESS",
+	"code": "1",
+	"msg": {
+		"fileID": 0,
+		"title": "Make Software Engineering Great Again",
+		"abstractContent": "No one knows software engineering better than me.\nI have the best software engineering skills.\nI will make software engineering great again.",
+		"size": 114514,
+		"previewPictureObjectName": "string",
+		"fileType": "string",
+		"uploadUsername": "Donald Trump",
+		"uploadDate": "2023-10-01T12:00:00Z",
+		"realObjectName": "string",
+		"previewPdfObjectName": "string",
+		"paymentMethod": 0,
+		"paymentAmount": 0,
+		"isAllowAnon": 0,
+		"isAllowVipfree": 0,
+		"isAllowComment": 0,
+		"hideScore": 0,
+		"isApproved": 0,
+		"indexString": "string",
+		"tagNames": ["string"],
+		"fileExtraEntity": {
+		"score": 0,
+		"ratersNum": 0,
+		"readNum": 0,
+		"likeNum": 0,
+		"dislikeNum": 0,
+		"downloadNum": 0,
+		"collectionNum": 0,
+		"commentNum": 0,
+		"isProCert": 0,
+		"isOfficial": 0,
+		"isOriginal": 0,
+		"isVipIncome": 0,
+		"originalAuthor": "string",
+		"copyrightNotice": "string",
+		"fileId": 0
+		},
+		"fileCheckEntity": {
+		"status": 0,
+		"notice": "string",
+		"processingTime": "string",
+		"rejectReason": "string",
+		"fileId": 0
+		},
+		"fileId": 0,
+		"folderId": 0,
+		"typeId": 0
+	}
+});
+
+mock.onPost("/docFileService/postFileCensor").reply((config) => {
+	return [200, { code: "0", msg: "mock-token", state: "SUCCESS" }];
 });
 
 export default mock;
