@@ -1,5 +1,5 @@
 <template>
-  <TestingPlatformNav :selectedKey="['0']">
+  <PlatformNav :selectedKey="['0']">
     <template #content>
       <!-- <a-page-header title="通知公告">
         <template #tags></template>
@@ -15,11 +15,11 @@
         <!-- </a-collapse>
       </a-page-header> -->
     </template>
-  </TestingPlatformNav>
+  </PlatformNav>
 </template>
 <script setup>
 import { ref, onMounted } from 'vue';
-import TestingPlatformNav from '@/components/base/nav/TestingPlatformNav.vue';
+import PlatformNav from '@/components/base/nav/PlatformNav.vue';
 
 import dayjs from 'dayjs';
 

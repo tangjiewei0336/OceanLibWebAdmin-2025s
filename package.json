@@ -36,6 +36,7 @@
     "@vuepress/bundler-vite": "^2.0.0-rc.18",
     "@vuepress/plugin-markdown-image": "^2.0.0-rc.60",
     "@vuepress/theme-default": "^2.0.0-rc.60",
+    "axios-mock-adapter": "^2.1.0",
     "sass-embedded": "^1.80.7",
     "vite": "^5.2.8"
   }
