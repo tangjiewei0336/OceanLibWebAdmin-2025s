@@ -13,8 +13,8 @@
 			</div>
 	  	</div>
 	</div>
-	<div v-if="showIframe" class="iframe-container">
-		<iframe :src="fileUrl" frameborder="0" style="width:100%; height:800px"></iframe>
+	<div v-if="showIframe" class="iframe-container" style="display: flex; justify-content: center; align-items: center;">
+		<iframe :src="fileUrl" frameborder="0" style="width:90%; height:800px"></iframe>
 	</div>
 
 	<div class="feedback-container">

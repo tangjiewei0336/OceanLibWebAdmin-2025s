@@ -2,6 +2,7 @@ import axiosPlugin from '@/axiosPlugin.js'
 import { message } from 'ant-design-vue';
 import { errorHandler } from './common.js'
 import qs from "qs";
+import { baseURL } from '@/config.js'
 
 const module = "adminInfo"
 
@@ -9,9 +10,9 @@ export async function login(username, password) {
     let data = null;
     await axiosPlugin({
         method: "post",
-        url: module + "/login",
+        url: baseURL + '/userAuth/login',
         headers: {
-            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
         data: qs.stringify({
             username: username,
@@ -55,14 +56,14 @@ export async function preRegister(username, password, studentName, isTeamLeader,
 export async function getUserInfo() {
     let data = null;
     await axiosPlugin({
-        method: "get",
-        url: module + "/getUserInfo",
+        method: 'get',
+        url: baseURL + '/userInfoService/getUserBaseInfo',
     }).then((response) => {
         data = response.data.msg;
-        localStorage.setItem("userInfo", JSON.stringify(data));
+        localStorage.setItem("userInfo", JSON.stringify(data));        
         message.success('用户信息已更新');
     }).catch((response) => errorHandler(response));
-    // return data;
+    return data;
 }
 
 export async function joinGroup(groupName, JoinCode) {

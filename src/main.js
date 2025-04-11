@@ -3,8 +3,7 @@ import Antd from 'ant-design-vue';
 import App from './App.vue';
 import router from './router'
 import 'ant-design-vue/dist/reset.css';
-import './mocks/userInfoMock'
-import './mocks/fileManageMock'
+// import './mocks/Mocks'
 
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'

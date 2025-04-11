@@ -1,21 +1,19 @@
 import axiosPlugin from '@/axiosPlugin.js'
-import { message } from 'ant-design-vue';
 import { errorHandler } from './common.js'
 import qs from "qs";
-import { pdfjsViewerURL, objectStorageServer } from '@/config.js';
+import { baseURL } from '@/config.js'
 
 export async function getFileList(pageNum, pageSize) {
     let data = null;
     await axiosPlugin({
         method: "get",
-        url: "/getNotAcceptedFileList",
-        data: qs.stringify({
+        url: baseURL + "/docInfoService/getNotAcceptedFileList",
+        params: {
             pageNum: pageNum,
-			pageSize: pageSize
-        }),
+            pageSize: pageSize
+        },
     }).then((response) => {
         data = response.data.msg;
-        localStorage.setItem("token", data);
     }).catch((response) => {
         data = errorHandler(response, true);
     });

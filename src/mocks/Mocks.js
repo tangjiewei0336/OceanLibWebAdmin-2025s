@@ -1,14 +1,61 @@
 import MockAdapter from 'axios-mock-adapter';
 import axiosPlugin from '@/axiosPlugin.js'
+import { baseURL } from '@/config.js'
 
 const mock = new MockAdapter(axiosPlugin);
+const module = "adminInfo"
+
+// login
+const MOCK_USERNAME = "pat";
+const MOCK_PASSWORD = "theworld";
+
+mock.onPost(baseURL + '/userAuth/login').reply((config) => {
+
+    const params = new URLSearchParams(config.data);
+    const username = params.get("username");
+    const password = params.get("password");
+
+    if (username === MOCK_USERNAME && password === MOCK_PASSWORD) {
+        return [200, { code: "0", msg: "mock-token", state: "SUCCESS" }];
+    } else if (username === "pendingUser") {
+        return [200, { code: "-3", msg: "账号未审核", state: "FAIL" }];
+    } else {
+        return [200, { code: "-2", msg: "用户名或密码错误", state: "FAIL" }];
+    }
+});
+
+
+// info
+const MOCK_SUCCESS_MESSAGE = [
+    200,
+    {
+        code: "0",
+        msg: {
+            "username": "admin",
+            "password": null,
+            "studentName": "杨智雄",
+            "createTime": 1722909079066,
+            "role": "superadmin",
+            "groupId": 0,
+            "status": 0,
+            "groupName": null
+        },
+        state: "SUCCESS"
+    }
+]
+
+mock.onGet('/userInfoService/getUserLimitedInfo').reply((config) => {
+    return MOCK_SUCCESS_MESSAGE;
+});
+
+
 
 const generateFile = (index) => {
     // 中文人名库
     const chineseNames = [
       '温德', '帕特', '林良军', '风云远', '文正', '文杰',
       '叶散归', '文心玥', '唐侠筱', '琳达赛', '林山', '帕莎', '宗元杰',
-      '谢缇', '琪琼', '宝光', '铁其峰', '李华', '汪海',
+      '琪琼', '谢缇', '宝光', '铁其峰', '李华', '汪海',
     ];
 
     // 英文人名库
