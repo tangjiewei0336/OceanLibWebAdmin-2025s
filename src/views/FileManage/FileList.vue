@@ -1,33 +1,67 @@
 <template>
-	<h2 style="margin-top: 24px;">待审核文档</h2>
+	<h2 style="margin-top: 24px;">文档管理</h2>
 	<div class="container">
-		<a-table
-			:data-source="tableData"
-			:pagination="pagination"
-			@change="handleTableChange"
-			bordered
-			rowKey="fileID"
-		>
-			<a-table-column title="标题" dataIndex="title" width="200" />
-			<a-table-column title="用户名" dataIndex="uploadUsername" width="150" />
-			<a-table-column title="上传日期" dataIndex="uploadDate">
-				<template #customRender="{ text }">
-				{{ formatDate(text) }}
-				</template>
-			</a-table-column>
-			<a-table-column title="状态">
-				<template #customRender="{ record }">
-				{{ record.isApproved == 0 ? '新提交' : '被举报' }}
-				</template>
-			</a-table-column>
-			<a-table-column title="操作" width="120">
-				<template #customRender="{ record }">
-				<a-button type="link" @click="handleReview(record.fileID)">进入审核</a-button>
-				</template>
-			</a-table-column>
-	  	</a-table>
+	  <div class="filter-buttons" style="margin-bottom: 16px;">
+		<a-button 
+		  :class="{ 
+			'all-btn': filterStatus === 'all',
+      		'active-button': filterStatus === 'all'
+			}"
+		  @click="changeFilter('all')"
+		>全部文件</a-button>
+		<a-button 
+		  :class="{
+			'pending-btn': filterStatus === 'pending',
+			'active-button': filterStatus === 'pending'
+			}"
+		  @click="changeFilter('pending')"
+		>待审核</a-button>
+		<a-button 
+		  :class="{
+			'approved-btn': filterStatus === 'approved',
+			'active-button': filterStatus === 'approved'
+			}"
+		  @click="changeFilter('approved')"
+		>审核通过</a-button>
+		<a-button 
+		  :class="{
+			'rejected-btn': filterStatus === 'rejected',
+			'active-button': filterStatus === 'rejected'
+			}"
+		  @click="changeFilter('rejected')"
+		>审核未通过</a-button>
+	  </div>
+  
+	  <a-table
+		:data-source="tableData"
+		:pagination="pagination"
+		@change="handleTableChange"
+		bordered
+		rowKey="fileID"
+	  >
+		<!-- 原有表格列保持不变 -->
+		<a-table-column title="标题" dataIndex="title" width="200" />
+		<a-table-column title="用户名" dataIndex="uploadUsername" width="150" />
+		<a-table-column title="上传日期" dataIndex="uploadDate">
+		  <template #customRender="{ text }">
+			{{ formatDate(text) }}
+		  </template>
+		</a-table-column>
+		<a-table-column title="状态">
+		  <template #customRender="{ record }">
+			{{ record.isApproved == 0 ? '新提交' : '被举报' }}
+		  </template>
+		</a-table-column>
+		<a-table-column title="操作" width="120">
+		  <template #customRender="{ record }">
+			<a-button type="link" @click="handleReview(record.fileID)">
+				{{ record.isApproved == 0 ? '进入审核' : '重新审核' }}
+			</a-button>
+		  </template>
+		</a-table-column>
+	  </a-table>
 	</div>
-</template>
+  </template>
   
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
@@ -37,7 +71,7 @@ import { useRouter } from 'vue-router';
 
 // 响应式数据
 const tableData = ref([]);
-
+const filterStatus = ref('all');	// filtering
 const router = useRouter();
 
 // 分页配置
@@ -50,31 +84,49 @@ const pagination = reactive({
 	showTotal: total => `共 ${total} 条`,
 	pageSizeOptions: ['10', '20', '50']
 });
-  
-// 初始化加载数据
-onMounted(async () => {
+
+// 修改筛选状态并刷新表格
+const changeFilter = (status) => {
+	filterStatus.value = status;
+	// 重置到第一页
+	pagination.current = 1;
+	// 重新加载数据
+	loadTableData();
+};
+
+const loadTableData = async () => {
 	try {
-		let data = await getFileList(1, 10);
+		// 根据当前筛选状态传递不同的参数
+		let filter = -1;
+		// 根据筛选状态添加不同的参数
+		if (filterStatus.value === 'all') {
+			filter = 0;
+		} else if (filterStatus.value === 'pending') {
+			filter = 1;
+		} else if (filterStatus.value === 'approved') {
+			filter = 2;
+		} else if (filterStatus.value === 'rejected') {
+			filter = 3;
+		}
+
+		const data = await getFileList(pagination.current, pagination.pageSize, filter);
 		tableData.value = data.list;
 		pagination.total = data.total;
-		pagination.current = Number(data.pageNum);
 	} catch (error) {
 		message.error('获取数据失败: ' + error.message);
 	}
+};
+
+// 初始化加载数据
+onMounted(() => {
+	loadTableData();
 });
 
 // 处理表格变化
 const handleTableChange = async (pag) => {
 	pagination.current = Number(pag.current);
 	pagination.pageSize = Number(pag.pageSize);
-
-	try {
-		const data = await getFileList(pagination.current, pagination.pageSize);
-		tableData.value = data.list;
-		pagination.total = data.total;
-	} catch (error) {
-		message.error('获取数据失败: ' + error.message);
-	}
+	loadTableData();
 };
 
 // 日期格式化
@@ -91,14 +143,38 @@ const handleReview = (fileID) => {
 
 <style scoped>
 .container {
-padding: 20px;
-background: #fff;
+	padding: 20px;
+	background: #fff;
 }
 
 .container h2 {
-	color: #1890ff; /* 主色 */
+	color: #1890ff;
 	font-weight: 500;
 	border-left: 4px solid #1890ff;
 	padding-left: 12px;
+}
+
+.filter-buttons {
+	display: flex;
+	gap: 8px;
+}
+
+.all-btn {
+  background-color: #1890ff;
+}
+.pending-btn {
+  background-color: #faad14;
+}
+.approved-btn {
+  background-color: #52c41a;
+}
+.rejected-btn {
+  background-color: #f5222d;
+}
+
+.active-button {
+	color: white;
+	font-weight: bold;
+	border: none !important;
 }
 </style>

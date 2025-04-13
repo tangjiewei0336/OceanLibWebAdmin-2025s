@@ -13,8 +13,11 @@
 			</div>
 	  	</div>
 	</div>
-	<div v-if="showImg" class="iframe-container" style="display: flex; justify-content: center; align-items: center;">
-		<img :src="ImgUrl" style="width:100%; object-fit: contain" />
+	<div v-if="showPdf" class="iframe-container" style="display: flex; justify-content: center; align-items: center;">
+		<iframe 
+			:src="PdfUrl" 
+			style="width: 100%; height: 80vh; object-fit: contain; border: none;"
+		></iframe>
 	</div>
 
 	<div class="feedback-container">
@@ -68,8 +71,8 @@ const router = useRouter();
 
 // 响应式数据
 const fileInfo = ref(null);
-const ImgUrl = ref('');
-const showImg = ref(false);
+const PdfUrl = ref('');
+const showPdf = ref(false);
 const loading = ref(false);
 const error = ref('');
 const feedbackText = ref('')
@@ -105,8 +108,8 @@ onMounted(async () => {
 			localStorage.setItem('fileName', infoResponse.fileName);
 		}
 		
-		ImgUrl.value = objectStorageServer + infoResponse['previewPictureObjectName'];
-		showImg.value = true;
+		PdfUrl.value = objectStorageServer + infoResponse['previewPdfObjectName'];
+		showPdf.value = true;
 	} catch (err) {
 		error.value = `加载失败: ${err.message}`;
 		message.error(error.value);

@@ -28,30 +28,43 @@
     </a-layout-sider>
   </template>
   
-  <script setup>
-  import { ref, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
-  
-  const props = defineProps(['selectedKey', 'menu', 'role']);
-  const router = useRouter();
-  
-  const selectedKeys = ref([]);
-  const openKeys = ref([]);
-  
-  // 处理菜单项点击事件
-  const handleMenuItemClick = (item) => {
-    if (item.name) {
-      selectedKeys.value = [item.row];
-      router.push({ name: item.name });
-    }
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const props = defineProps(['selectedKey', 'menu', 'role']);
+const router = useRouter();
+
+const selectedKeys = ref([]);
+const openKeys = ref([]);
+
+// 点击菜单时保存状态
+const handleMenuItemClick = (item) => {
+  if (item.name) {
+    selectedKeys.value = [item.row];
+    sessionStorage.setItem('lastMenuState', JSON.stringify({
+      openKeys: openKeys.value,
+      selectedKeys: selectedKeys.value
+    }));
+    router.push({ name: item.name });
   }
-  
-  onMounted(() => {
+};
+
+// 初始化时恢复状态
+onMounted(() => {
+  const savedState = sessionStorage.getItem('lastMenuState');
+  if (savedState) {
+    const { openKeys: savedOpenKeys, selectedKeys: savedSelectedKeys } = JSON.parse(savedState);
+    openKeys.value = savedOpenKeys;
+    selectedKeys.value = savedSelectedKeys;
+  } else {
+    // 默认逻辑
     openKeys.value.push(props.selectedKey[0]);
     if (props.selectedKey.length > 1) {
       selectedKeys.value.push(props.selectedKey[0] + '-' + props.selectedKey[1]);
     } else {
       selectedKeys.value.push(props.selectedKey[0]);
     }
-  });
-  </script>
+  }
+});
+</script>

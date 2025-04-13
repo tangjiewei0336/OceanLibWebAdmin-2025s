@@ -15,11 +15,11 @@ const title = ref('Vue 3 计数器示例');
 const count = ref(0);
 
 onMounted(async () => {
-	if (localStorage.token) {
-        console.log("token exist")
-    } else {
-		console.log("token is fucked")
-	}
+	// if (localStorage.token) {
+    //     console.log("token exist")
+    // } else {
+	// 	console.log("token is fucked")
+	// }
 });
 
 // 方法
