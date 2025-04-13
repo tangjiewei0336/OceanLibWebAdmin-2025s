@@ -9,6 +9,7 @@ export async function getFileList(pageNum, pageSize) {
         method: "get",
         url: baseURL + "/docInfoService/getNotAcceptedFileList",
         params: {
+            username: "bit-sunjz",
             pageNum: pageNum,
             pageSize: pageSize
         },
@@ -20,33 +21,13 @@ export async function getFileList(pageNum, pageSize) {
     return data;
 }
 
-export async function getFileUrl(fileId) {
-    let url = null;
-    await axiosPlugin({
-        method: "get",
-        url: "/docFileService/doTempFilePreview",
-        params: {
-            uploadID: fileId,
-        },
-    }).then((response) => {
-        if (response.data.code != -1) {
-            // TODO: use the mock
-            url = response.data.msg;
-            // url = pdfjsViewerURL + objectStorageServer + response.data.msg;
-        }
-    }).catch((response) => {
-        data = errorHandler(response, true);
-    });
-    return url;
-}
-
 export async function getFileInfo(fileId) {
     let fileinfo = null;
     await axiosPlugin({
         method: "get",
-        url: "/docInfoService/getFileInfoByFileID",
+        url: baseURL + "/docInfoService/getFileInfoByFileID",
         params: {
-            uploadID: fileId,
+            fileID: fileId,
         },
     }).then((response) => {
         fileinfo = response.data.msg;

@@ -1,4 +1,5 @@
 <template>
+	<h2 style="margin-top: 24px;">待审核文档</h2>
 	<div class="container">
 		<a-table
 			:data-source="tableData"
@@ -50,7 +51,7 @@ const pagination = reactive({
 	pageSizeOptions: ['10', '20', '50']
 });
   
-  // 初始化加载数据
+// 初始化加载数据
 onMounted(async () => {
 	try {
 		let data = await getFileList(1, 10);
@@ -92,5 +93,12 @@ const handleReview = (fileID) => {
 .container {
 padding: 20px;
 background: #fff;
+}
+
+.container h2 {
+	color: #1890ff; /* 主色 */
+	font-weight: 500;
+	border-left: 4px solid #1890ff;
+	padding-left: 12px;
 }
 </style>

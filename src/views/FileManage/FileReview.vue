@@ -13,8 +13,8 @@
 			</div>
 	  	</div>
 	</div>
-	<div v-if="showIframe" class="iframe-container" style="display: flex; justify-content: center; align-items: center;">
-		<iframe :src="fileUrl" frameborder="0" style="width:90%; height:800px"></iframe>
+	<div v-if="showImg" class="iframe-container" style="display: flex; justify-content: center; align-items: center;">
+		<img :src="ImgUrl" style="width:100%; object-fit: contain" />
 	</div>
 
 	<div class="feedback-container">
@@ -60,15 +60,16 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
-import { getFileInfo, getFileUrl, postFileCensor } from '@/assets/js/request/FileAPI'; 
+import { getFileInfo, postFileCensor } from '@/assets/js/request/FileAPI'; 
 import { useRouter } from 'vue-router';
+import { objectStorageServer } from '@/config'
 
 const router = useRouter();
 
 // 响应式数据
 const fileInfo = ref(null);
-const fileUrl = ref('');
-const showIframe = ref(false);
+const ImgUrl = ref('');
+const showImg = ref(false);
 const loading = ref(false);
 const error = ref('');
 const feedbackText = ref('')
@@ -92,29 +93,26 @@ onMounted(async () => {
 	if (!fileID) {
 		error.value = '未找到文档ID';
 		return;
-}
-
-loading.value = true;
-
-try {
-	// 获取文档基本信息
-	const infoResponse = await getFileInfo(fileID);
-	if (infoResponse) {
-	fileInfo.value = infoResponse;
-	localStorage.setItem('fileName', infoResponse.fileName);
 	}
 
-	// 获取文档预览URL
-	const urlResponse = await getFileUrl(fileID);
-	fileUrl.value = urlResponse;
-	showIframe.value = true;
-	
-} catch (err) {
-	error.value = `加载失败: ${err.message}`;
-	message.error(error.value);
-} finally {
-	loading.value = false;
-}
+	loading.value = true;
+
+	try {
+		// 获取文档基本信息
+		const infoResponse = await getFileInfo(fileID);
+		if (infoResponse) {
+			fileInfo.value = infoResponse;
+			localStorage.setItem('fileName', infoResponse.fileName);
+		}
+		
+		ImgUrl.value = objectStorageServer + infoResponse['previewPictureObjectName'];
+		showImg.value = true;
+	} catch (err) {
+		error.value = `加载失败: ${err.message}`;
+		message.error(error.value);
+	} finally {
+		loading.value = false;
+	}
 });
 
 // 提交反馈到后端

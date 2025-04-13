@@ -87,7 +87,7 @@ const onFinish = async (values) => {
     if (result != null) {
         await getUserInfo();
         open.value = false;
-        // location.reload()
+        location.reload()
     }
 };
 const onFinishFailed = errorInfo => {
