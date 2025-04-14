@@ -3,13 +3,13 @@ import { errorHandler } from './common.js'
 import qs from "qs";
 import { baseURL } from '@/config.js'
 
-export async function getFileList(pageNum, pageSize) {
+export async function getFileList(pageNum, pageSize, filter) {
     let data = null;
     await axiosPlugin({
         method: "get",
-        url: baseURL + "/docInfoService/getNotAcceptedFileList",
+        url: baseURL + "/docInfoService/getNotAcceptedFileListByFileStatement",
         params: {
-            username: "bit-sunjz",
+            approvedOrStatus: filter,
             pageNum: pageNum,
             pageSize: pageSize
         },
@@ -37,15 +37,33 @@ export async function getFileInfo(fileId) {
     return fileinfo;
 }
 
-export async function postFileCensor(fileID, comment, isAccepted) {
+export async function postFileRejection(fileID, reason) {
     let data = null;
     await axiosPlugin({
         method: "post",
-        url: "/docFileService/postFileCensor",
+        url: baseURL + "/docFunctionService/postFileCensor",
         data: qs.stringify({
             fileID: fileID,
-            comment: comment,
-            isAccepted: isAccepted,
+            isApproved: 0,
+            rejectReason: reason,
+        }),
+    }).then((response) => {
+        data = response.data.msg;
+    }).catch((response) => {
+        data = errorHandler(response, true);
+    });
+    return data;
+}
+
+export async function postFileApprove(fileID, reason) {
+    let data = null;
+    await axiosPlugin({
+        method: "post",
+        url: baseURL + "/docFunctionService/postFileCensor",
+        data: qs.stringify({
+            fileID: fileID,
+            isApproved: 1,
+            rejectReason: reason,
         }),
     }).then((response) => {
         data = response.data.msg;

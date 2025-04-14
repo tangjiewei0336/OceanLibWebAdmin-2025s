@@ -32,6 +32,7 @@
 		<!-- 带间距的按钮组 -->
 		<div class="button-group">
 			<a-button 
+				v-if="filter % 2 == 0"
 				type="primary" 
 				@click="submitFeedback(true)"
 				class="btn-approve"
@@ -39,7 +40,8 @@
 				通过
 			</a-button>
 			
-			<a-button 
+			<a-button
+				v-if="filter !== 2"
 				type="primary" 
 				danger
 				@click="submitFeedback(false)"
@@ -63,7 +65,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
-import { getFileInfo, postFileCensor } from '@/assets/js/request/FileAPI'; 
+import { getFileInfo, postFileRejection, postFileApprove } from '@/assets/js/request/FileAPI'; 
 import { useRouter } from 'vue-router';
 import { objectStorageServer } from '@/config'
 
@@ -76,6 +78,7 @@ const showPdf = ref(false);
 const loading = ref(false);
 const error = ref('');
 const feedbackText = ref('')
+const filter = ref(0)
 
 // 格式化文件大小
 const formatSize = (bytes) => {
@@ -92,6 +95,15 @@ const formatDate = (dateString) => {
 };
 
 onMounted(async () => {
+	const filterStatus = localStorage.getItem('filter')
+	if (filterStatus == "pending") {
+		filter.value = 0;
+	} else if (filterStatus == "approved") {
+		filter.value = 1;
+	} else if (filterStatus == "rejected") {
+		filter.value = 2;
+	}
+	
 	const fileID = localStorage.getItem('fileID');
 	if (!fileID) {
 		error.value = '未找到文档ID';
@@ -120,14 +132,19 @@ onMounted(async () => {
 
 // 提交反馈到后端
 const submitFeedback = async (isAccept) => {
-	if (!feedbackText.value) {
-		message.error('反馈意见不能为空！');
+	if (!feedbackText.value && !isAccept) {
+		message.error('拒绝意见不能为空！');
 		return;
 	}
 	const fileID = localStorage.getItem('fileID');
 	try {
-		const response = await postFileCensor(fileID, feedbackText.value, isAccept);
-		message.success(`审核完成: ${isAccept ? '通过' : '拒绝'}`);
+		if (isAccept) {
+			let data = await postFileApprove(fileID, feedbackText.value);
+			message.success(`审核完成: 通过`);
+		} else {
+			let data = await postFileRejection(fileID, feedbackText.value);
+			message.success(`审核完成: 拒绝`);
+		}
 		routerGoBack();
 	} catch (error) {
 		message.error(`操作失败: ${error.response?.data?.message || error.message}`);

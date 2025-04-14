@@ -1,14 +1,7 @@
 <template>
-	<h2 style="margin-top: 24px;">文档管理</h2>
+	<h2 style="margin-top: 24px;">文档审核</h2>
 	<div class="container">
 	  <div class="filter-buttons" style="margin-bottom: 16px;">
-		<a-button 
-		  :class="{ 
-			'all-btn': filterStatus === 'all',
-      		'active-button': filterStatus === 'all'
-			}"
-		  @click="changeFilter('all')"
-		>全部文件</a-button>
 		<a-button 
 		  :class="{
 			'pending-btn': filterStatus === 'pending',
@@ -48,9 +41,9 @@
 		  </template>
 		</a-table-column>
 		<a-table-column title="状态">
-		  <template #customRender="{ record }">
-			{{ record.isApproved == 0 ? '新提交' : '被举报' }}
-		  </template>
+			<span v-if="filterStatus === 'approved'">已通过</span>
+			<span v-else-if="filterStatus === 'pending'">待审核</span>
+			<span v-else-if="filterStatus === 'rejected'">被举报</span>
 		</a-table-column>
 		<a-table-column title="操作" width="120">
 		  <template #customRender="{ record }">
@@ -71,7 +64,7 @@ import { useRouter } from 'vue-router';
 
 // 响应式数据
 const tableData = ref([]);
-const filterStatus = ref('all');	// filtering
+const filterStatus = ref('pending');	// filtering
 const router = useRouter();
 
 // 分页配置
@@ -92,6 +85,7 @@ const changeFilter = (status) => {
 	pagination.current = 1;
 	// 重新加载数据
 	loadTableData();
+	localStorage.setItem('filter', status)
 };
 
 const loadTableData = async () => {
@@ -99,14 +93,12 @@ const loadTableData = async () => {
 		// 根据当前筛选状态传递不同的参数
 		let filter = -1;
 		// 根据筛选状态添加不同的参数
-		if (filterStatus.value === 'all') {
+		if (filterStatus.value === 'pending') {
 			filter = 0;
-		} else if (filterStatus.value === 'pending') {
-			filter = 1;
 		} else if (filterStatus.value === 'approved') {
-			filter = 2;
+			filter = 1;
 		} else if (filterStatus.value === 'rejected') {
-			filter = 3;
+			filter = 2;
 		}
 
 		const data = await getFileList(pagination.current, pagination.pageSize, filter);
@@ -119,6 +111,9 @@ const loadTableData = async () => {
 
 // 初始化加载数据
 onMounted(() => {
+	if (localStorage.getItem('filter') !== null) {
+		filterStatus.value = localStorage.getItem('filter')
+	}
 	loadTableData();
 });
 
@@ -159,9 +154,6 @@ const handleReview = (fileID) => {
 	gap: 8px;
 }
 
-.all-btn {
-  background-color: #1890ff;
-}
 .pending-btn {
   background-color: #faad14;
 }
