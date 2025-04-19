@@ -70,11 +70,11 @@ export async function update(username, params_obj = {}) {
 }
 
 // 用于超级管理员删除用户
-export async function deleteForSuperAdmin(username) {
+export async function deleteUser(username) {
     let data = null;
     await axiosPlugin({
         method: "DELETE",
-        url: module + "/delete",
+        url: "userAuth/ban",
         params: {
             username: username
         },
@@ -86,6 +86,11 @@ export async function deleteForSuperAdmin(username) {
     }).catch((response) => errorHandler(response));
     return data;
 }
+
+
+
+
+
 
 
 export async function preRegister(username, password, studentName, isTeamLeader, groupName, groupDescription) {
