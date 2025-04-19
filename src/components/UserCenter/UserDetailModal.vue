@@ -29,9 +29,9 @@
 
       <a-descriptions-item label="身份">
         <template v-if="!isEditing">{{
-            userData.role === 'superadmin'
+            userData.role === 'SUPERADMIN'
               ? '超级管理员'
-              : userData.role === 'admin'
+              : userData.role === 'ADMIN'
               ? '管理员'
               : '用户'
           }}
@@ -39,8 +39,8 @@
         <template v-else>
           <a-select v-model:value="formState.role" style="width: 120px">
             <a-select-option value="user">用户</a-select-option>
-            <a-select-option value="admin">管理员</a-select-option>
-            <a-select-option value="superadmin">超级管理员</a-select-option>
+            <a-select-option value="ADMIN">管理员</a-select-option>
+            <a-select-option value="SUPERADMIN">超级管理员</a-select-option>
           </a-select>
         </template>
       </a-descriptions-item>
@@ -198,7 +198,7 @@ const cancelEdit = () => {
 const handleUpdate = async () => {
   const currentUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
 
-  if (currentUserInfo.role !== 'superadmin' && formState.value.role === 'superadmin') {
+  if (currentUserInfo.role !== 'SUPERADMIN' && formState.value.role === 'SUPERADMIN') {
     message.error('您无权将用户角色设置为超级管理员');
     return;
   }

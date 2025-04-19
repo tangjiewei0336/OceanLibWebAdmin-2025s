@@ -2,6 +2,7 @@ import axiosPlugin from '@/axiosPlugin.js'
 import { message } from 'ant-design-vue';
 import { errorHandler } from './common.js'
 import qs from "qs";
+import { baseURL } from '@/config.js'
 
 const module = "adminInfo"
 
@@ -9,8 +10,7 @@ export async function login(username, password) {
     let data = null;
     await axiosPlugin({
         method: "post",
-        // url: "adminInfo/login",
-        url: module + "/login",
+        url: baseURL + '/userAuth/login',
         data: qs.stringify({
             username: username,
             password: password,
@@ -34,7 +34,7 @@ export async function getManageInfo(params = {}, pageSize, pageNum) {
     let data = null;
     await axiosPlugin({
         method: "get",
-        url: module + "/getManageInfo",
+        url: baseURL + "/userInfoService/getUserAllInfo",
         data: {
             ...params,
             pageSize: pageSize,
@@ -53,7 +53,7 @@ export async function update(username, params_obj = {}) {
     let data = null;
     await axiosPlugin({
         method: "put",
-        url: module + "/update",
+        url: baseURL + "/userInfo/updateUserInfo",
         params: {
             username: username
         },
@@ -74,7 +74,7 @@ export async function deleteUser(username) {
     let data = null;
     await axiosPlugin({
         method: "DELETE",
-        url: "userAuth/ban",
+        url: baseURL + "/userAuth/ban",
         params: {
             username: username
         },
@@ -87,7 +87,18 @@ export async function deleteUser(username) {
     return data;
 }
 
-
+export async function getUserInfo() {
+    let data = null;
+    await axiosPlugin({
+        method: "get",
+        url: baseURL + '/userInfoService/getUserBaseInfo',
+    }).then((response) => {
+        data = response.data.msg;
+        localStorage.setItem("userInfo", JSON.stringify(data));
+        message.success('用户信息已更新');
+    }).catch((response) => errorHandler(response));
+    return data;
+}
 
 
 
@@ -112,19 +123,6 @@ export async function preRegister(username, password, studentName, isTeamLeader,
         data = errorHandler(response, true);
     });
     return data;
-}
-
-export async function getUserInfo() {
-    let data = null;
-    await axiosPlugin({
-        method: "get",
-        url: module + "/getUserInfo",
-    }).then((response) => {
-        data = response.data.msg;
-        localStorage.setItem("userInfo", JSON.stringify(data));
-        message.success('用户信息已更新');
-    }).catch((response) => errorHandler(response));
-    // return data;
 }
 
 export async function joinGroup(groupName, JoinCode) {

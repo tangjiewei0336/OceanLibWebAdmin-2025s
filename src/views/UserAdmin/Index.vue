@@ -146,6 +146,7 @@ const fetchUserData = async () => {
     const pageSize = pagination.value.pageSize;
     // let searchValue = searchText.value;
     const response = await getManageInfo(searchParams.value, pageNum, pageSize);
+    console.log(response);
     let current_usersInfo = localStorage.getItem('current_usersInfo');
     if (current_usersInfo != undefined) {
       current_usersInfo = JSON.parse(current_usersInfo);
@@ -221,14 +222,14 @@ const columns = [
       let textColor = '';
       let iconColor = '';
 
-      if (text === 'superadmin') {
+      if (text === 'SUPERADMIN') {
         icon = h(CrownOutlined, { style: { marginRight: '0px', fontSize: '16px', color: '#fff' } });
         label = '超级管理员';
         colorStart = '#8e44ad'; // 红色开始
         colorEnd = '#c0399f';   // 浅一些的橘红色
         textColor = '#fff';
         iconColor = '#fff';
-      } else if (text === 'admin') {
+      } else if (text === 'ADMIN') {
         icon = h(StarFilled, { style: { marginRight: '0px', fontSize: '16px', color: '#fff' } });
         label = '管理员';
         colorStart = '#e74c3c'; // 红色开始
