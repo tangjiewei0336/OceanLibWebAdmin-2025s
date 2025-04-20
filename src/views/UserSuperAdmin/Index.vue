@@ -1,6 +1,6 @@
 <template>
-  <PlatformNav :selectedKey="['0']">
-    <template #content>
+  <!-- <PlatformNav :selectedKey="['0']">
+    <template #content> -->
       <!-- <a-card title="用户管理"> -->
         <!-- 查询表单 -->
         <a-page-header
@@ -108,8 +108,8 @@
         >
         <UserDetailModal v-if="currentUser" :user-data="currentUser" />
       </a-modal>
-    </template>
-  </PlatformNav>
+    <!-- </template>
+  </PlatformNav> -->
 </template>
 <script setup>
 import { h } from 'vue';
