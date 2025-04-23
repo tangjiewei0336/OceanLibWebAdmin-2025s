@@ -10,3 +10,5 @@ export const baseURL = 'http://' + baseServer + (baseServerPort != null ? (':' +
 export const pdfjsViewerURL = 'http://ocean.oriole.cn/pdfjs/web/viewer.html?file=';
 
 export const objectStorageServer = 'http://file.ocean.oriole.cn/';
+
+// http://file.ocean.oriole.cn/PreviewDocument/LDVY5NB0IJVAMUVIFZTLUUHC3IXKORLZ_preview.pdf

@@ -1,68 +1,84 @@
 <template>
 	<div class="document-viewer">
+	  <!-- 文档信息卡片 -->
+	  <a-card :bordered="false" class="document-card">
 		<div class="document-info" v-if="fileInfo">
-			<h2>{{ fileInfo.title }}</h2>
-			<div class="meta-info">
-				<span>大小: {{ formatSize(fileInfo.size) }}</span>
-				<span>上传者: {{ fileInfo.uploadUsername }}</span>
-				<span>上传时间: {{ formatDate(fileInfo.uploadDate) }}</span>
-			</div>
-			<div class="abstract">
-				<h3>内容摘要</h3>
-				<p>{{ fileInfo.abstractContent || '暂无内容摘要' }}</p>
-			</div>
-	  	</div>
-	</div>
-	<div v-if="showPdf" class="iframe-container" style="display: flex; justify-content: center; align-items: center;">
-		<iframe 
-			:src="PdfUrl" 
-			style="width: 100%; height: 80vh; object-fit: contain; border: none;"
-		></iframe>
-	</div>
-
-	<div class="feedback-container">
-		<!-- 大尺寸输入框 -->
-		<a-textarea
-			@input="feedbackText = $event.target.value"
-			placeholder="请输入反馈意见（必填）"
-			:auto-size="{ minRows: 4, maxRows: 6 }"
-			class="large-input"
-		/>
-		
-		<!-- 带间距的按钮组 -->
-		<div class="button-group">
-			<a-button 
-				v-if="filter % 2 == 0"
-				type="primary" 
-				@click="submitFeedback(true)"
-				class="btn-approve"
-			>
-				通过
-			</a-button>
-			
-			<a-button
-				v-if="filter !== 2"
-				type="primary" 
-				danger
-				@click="submitFeedback(false)"
-				class="btn-reject"
-			>
-				拒绝
-			</a-button>
-			
-			<a-button 
-				type="primary" 
-				ghost
-				@click="routerGoBack"
-				class="btn-back"
-			>
-				返回
-			</a-button>
+		  <h2>{{ fileInfo.title }}</h2>
+		  <div class="meta-info">
+			<span>大小: {{ formatSize(fileInfo.size) }}</span>
+			<span>上传者: {{ fileInfo.uploadUsername }}</span>
+			<span>上传时间: {{ formatDate(fileInfo.uploadDate) }}</span>
+		  </div>
+		  <div class="abstract">
+			<h3>内容摘要</h3>
+			<p>{{ fileInfo.abstractContent || '暂无内容摘要' }}</p>
+		  </div>
 		</div>
-  	</div>
-</template>
+	  </a-card>
+  
+	  <!-- PDF预览区域 -->
+	  <div v-if="showPdf" class="preview-container">
+		<iframe 
+		  :src="PdfUrl" 
+		  class="pdf-iframe"
+		></iframe>
+	  </div>
+  
+	  <!-- 反馈区域 -->
+	  <a-card :bordered="false" class="feedback-card">
+		<div class="feedback-container">
+		  <a-form layout="vertical">
+			<a-form-item label="审核意见">
+			  <a-textarea
+				v-model:value="feedbackText"
+				placeholder="请输入详细反馈意见（必填）"
+				:auto-size="{ minRows: 4, maxRows: 8 }"
+				allow-clear
+			  />
+			</a-form-item>
+			
+			<div class="action-buttons">
+			  <a-space :size="16">
+				<a-button 
+				  v-if="filter % 2 == 0"
+				  type="primary"
+				  @click="submitFeedback(true)"
+				>
+				  <template #icon><check-circle-outlined /></template>
+				  通过
+				</a-button>
+				
+				<a-button
+				  v-if="filter !== 2"
+				  type="primary"
+				  danger
+				  @click="submitFeedback(false)"
+				>
+				  <template #icon><close-circle-outlined /></template>
+				  拒绝
+				</a-button>
+				
+				<a-button 
+				  type="default"
+				  @click="routerGoBack"
+				>
+				  <template #icon><arrow-left-outlined /></template>
+				  返回
+				</a-button>
+			  </a-space>
+			</div>
+		  </a-form>
+		</div>
+	  </a-card>
+	</div>
+  </template>
   
 <script setup>
+import { 
+	CheckCircleOutlined,
+	CloseCircleOutlined,
+	ArrowLeftOutlined 
+} from '@ant-design/icons-vue';
 import { ref, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
 import { getFileInfo, postFileRejection, postFileApprove } from '@/assets/js/request/FileAPI'; 
@@ -120,6 +136,8 @@ onMounted(async () => {
 			localStorage.setItem('fileName', infoResponse.fileName);
 		}
 		
+		console.log(infoResponse)
+
 		PdfUrl.value = objectStorageServer + infoResponse['previewPdfObjectName'];
 		showPdf.value = true;
 	} catch (err) {
@@ -159,98 +177,70 @@ const routerGoBack = () => {
   
 <style scoped>
 .document-viewer {
-	max-width: 1200px;
-	margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.document-info {
-	margin-bottom: 30px;
-	padding: 20px;
-	background: #f9f9f9;
-	border-radius: 8px;
+.document-card,
+.feedback-card {
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.preview-container {
+  width: 100%;
+  height: calc(100vh - 100px);
+  min-height: 500px;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pdf-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
 .meta-info {
-	display: flex;
-	gap: 20px;
-	margin: 15px 0;
-	color: #666;
-	font-size: 14px;
+  display: flex;
+  gap: 16px;
+  color: rgba(0, 0, 0, 0.45);
+  margin: 12px 0;
 }
 
 .abstract {
-	margin-top: 20px;
+  margin-top: 16px;
 }
 
 .abstract h3 {
-	margin-bottom: 10px;
-	color: #333;
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: 500;
 }
 
-.loading, .error {
-	text-align: center;
-	padding: 20px;
-	font-size: 16px;
-}
-
-.error {
-	color: #ff4d4f;
-}
-
-.iframe-container {
-	margin-top: 20px;
-	border: 1px solid #eee;
-	border-radius: 8px;
-	overflow: hidden;
-}
-
-.feedback-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.large-input {
-  width: 100%;
-  margin-bottom: 24px;
-  font-size: 16px;
-}
-
-.button-group {
+.action-buttons {
   display: flex;
-  gap: 16px;
-  justify-content: center;
+  justify-content: flex-end;
+  margin-top: 24px;
 }
 
-/* 按钮颜色定制 */
-.btn-approve {
-  background-color: #52c41a;
-  border-color: #52c41a;
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .document-viewer {
+    padding: 16px;
+  }
+  
+  .meta-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .preview-container {
+    height: 400px;
+  }
 }
-
-.btn-approve:hover {
-  background-color: #73d13d;
-  border-color: #73d13d;
-}
-
-.btn-reject {
-  background-color: #ff4d4f;
-  border-color: #ff4d4f;
-}
-
-.btn-reject:hover {
-  background-color: #ff7875;
-  border-color: #ff7875;
-}
-
-.btn-back {
-  color: #1890ff;
-  border-color: #1890ff;
-}
-
-.btn-back:hover {
-  color: #40a9ff;
-  border-color: #40a9ff;
-}
-
 </style>
