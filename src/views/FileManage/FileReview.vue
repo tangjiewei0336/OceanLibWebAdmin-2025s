@@ -3,16 +3,121 @@
 	  <!-- 文档信息卡片 -->
 	  <a-card :bordered="false" class="document-card">
 		<div class="document-info" v-if="fileInfo">
-		  <h2>{{ fileInfo.title }}</h2>
-		  <div class="meta-info">
-			<span>大小: {{ formatSize(fileInfo.size) }}</span>
-			<span>上传者: {{ fileInfo.uploadUsername }}</span>
-			<span>上传时间: {{ formatDate(fileInfo.uploadDate) }}</span>
-		  </div>
-		  <div class="abstract">
-			<h3>内容摘要</h3>
-			<p>{{ fileInfo.abstractContent || '暂无内容摘要' }}</p>
-		  </div>
+			<h2 v-if="!isEditing">{{ fileInfo.title }}</h2>
+			<a-input 
+				v-else 
+				v-model:value="editableInfo.title" 
+				placeholder="请输入标题"
+				style="width: 100%; font-size: 16px; margin-bottom: 16px;"
+			/>
+			<h3>基本信息</h3>
+			<div class="meta-info">
+			<span>大小: 
+				<span v-if="!isEditing">{{ formatSize(fileInfo.size) }}</span>
+				<a-input-number v-else v-model:value="editableInfo.size" />
+			</span>
+			<span>上传者: 
+				<span v-if="!isEditing">{{ fileInfo.uploadUsername }}</span>
+				<a-input 
+					v-else 
+					v-model:value="editableInfo.uploadUsername"
+					style="display: inline-flex; width: auto;"
+				/>
+			</span>
+			<span>上传时间: 
+				<span v-if="!isEditing">{{ formatDate(fileInfo.uploadDate) }}</span>
+				<a-date-picker v-else v-model:value="editableInfo.uploadDate" />
+			</span>
+			<span>标签: 
+				<span v-if="!isEditing">{{ fileInfo.tagNames.join(', ') }}</span>
+				<a-select
+				v-else
+				v-model:value="editableInfo.tagNames"
+				mode="tags"
+				style="width: 200px"
+				/>
+			</span>
+			</div>
+
+			<h3>付费设置</h3>
+			<div class="meta-info">
+			<span>付费方式: 
+				<span v-if="!isEditing">{{ formatPaymentMethod(fileInfo.paymentMethod) }}</span>
+				<a-select 
+					v-else
+					v-model:value="editableInfo.paymentMethod"
+					style="width: 100px"
+					:dropdownStyle="{ width: '350px' }"
+				>
+					<a-select-option :value="1">免费</a-select-option>
+					<a-select-option :value="2">付费</a-select-option>
+					<a-select-option :value="3">VIP免费</a-select-option>
+				</a-select>
+			</span>
+			<span>金额: 
+				<span v-if="!isEditing">¥{{ fileInfo.paymentAmount }}</span>
+				<a-input-number v-else v-model:value="editableInfo.paymentAmount" />
+				(元)
+			</span>
+			<span>匿名下载: 
+				<span v-if="!isEditing">{{ fileInfo.isAllowAnon ? '允许' : '禁止' }}</span>
+				<a-switch v-else v-model:checked="editableInfo.isAllowAnon" />
+			</span>
+			<span>VIP免费: 
+				<span v-if="!isEditing">{{ fileInfo.isAllowVipfree ? '是' : '否' }}</span>
+				<a-switch v-else v-model:checked="editableInfo.isAllowVipfree" />
+			</span>
+			</div>
+			
+			<h3>权限设置</h3>
+			<div class="meta-info">
+				<span>评论: {{ fileInfo.isAllowComment ? '允许' : '禁止' }}</span>
+				<span>评分隐藏: {{ fileInfo.hideScore > 0 ? '是' : '否' }}</span>
+				<span>文件夹: {{ fileInfo.folderID || '无' }}</span>
+			</div>
+
+			<h3>互动数据</h3>
+			<div class="meta-info">
+				<span>评分: {{ fileInfo.fileExtraEntity.score }}分({{ fileInfo.fileExtraEntity.ratersNum }}人)</span>
+				<span>阅读: {{ fileInfo.fileExtraEntity.readNum }}次</span>
+				<span>点赞: {{ fileInfo.fileExtraEntity.likeNum }}</span>
+				<span>下载: {{ fileInfo.fileExtraEntity.downloadNum }}次</span>
+				<span>收藏: {{ fileInfo.fileExtraEntity.collectionNum }}</span>
+				<span>评论数: {{ fileInfo.fileExtraEntity.commentNum }}</span>
+			</div>
+			<h3>认证信息</h3>
+			<div class="meta-info">
+				<span>专业认证: {{ fileInfo.fileExtraEntity.isProCert ? '是' : '否' }}</span>
+				<span>官方: {{ fileInfo.fileExtraEntity.isOfficial ? '是' : '否' }}</span>
+				<span>原创: {{ fileInfo.fileExtraEntity.isOriginal ? '是' : '否' }}</span>
+				<span>VIP收益: {{ fileInfo.fileExtraEntity.isVipIncome ? '开启' : '关闭' }}</span>
+				<span>版权: {{ formatCopyright(fileInfo.fileExtraEntity.copyrightNotice) }}</span>
+			</div>
+			<div class="abstract">
+				<h3>内容摘要</h3>
+				<p v-if="!isEditing">{{ fileInfo.abstractContent || '暂无内容摘要' }}</p>
+				<a-textarea
+				v-else
+				v-model:value="editableInfo.abstractContent"
+				placeholder="请输入内容摘要"
+				:auto-size="{ minRows: 3, maxRows: 6 }"
+				style="width: 100%"
+				/>
+			</div>
+		</div>
+
+		<div class="action-buttons">
+			<a-button @click="toggleEditMode" type="primary">
+				{{ isEditing ? '取消编辑' : '编辑信息' }}
+			</a-button>
+			<a-button 
+				v-if="isEditing" 
+				type="primary" 
+				@click="submitChanges"
+				style="margin-left: 10px"
+			>
+				提交修改
+			</a-button>
 		</div>
 	  </a-card>
   
@@ -29,12 +134,12 @@
 		<div class="feedback-container">
 		  <a-form layout="vertical">
 			<a-form-item label="审核意见">
-			  <a-textarea
+				<a-textarea
 				v-model:value="feedbackText"
-				placeholder="请输入详细反馈意见（必填）"
+				:placeholder="getTextPlaceHolder()"
 				:auto-size="{ minRows: 4, maxRows: 8 }"
 				allow-clear
-			  />
+				/>
 			</a-form-item>
 			
 			<div class="action-buttons">
@@ -79,9 +184,9 @@ import {
 	CloseCircleOutlined,
 	ArrowLeftOutlined 
 } from '@ant-design/icons-vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { message } from 'ant-design-vue';
-import { getFileInfo, postFileRejection, postFileApprove } from '@/assets/js/request/FileAPI'; 
+import { getFileInfo, postFileRejection, postFileApprove, postFileInfoChange } from '@/assets/js/request/FileAPI'; 
 import { useRouter } from 'vue-router';
 import { objectStorageServer } from '@/config'
 
@@ -110,6 +215,45 @@ const formatDate = (dateString) => {
 	return new Date(dateString).toLocaleString();
 };
 
+const getTextPlaceHolder = () => {
+	const filterStatus = localStorage.getItem('filter')
+	if (filterStatus == "pending") {
+		return '请输入审核意见（必填）'
+	} else if (filterStatus == "approved") {
+		return '请输入拒绝意见（必填）'
+	} else if (filterStatus == "rejected") {
+		return '请输入通过意见（选填）'
+	}
+}
+
+const isEditing = ref(false)
+
+const editableInfo = reactive({})
+
+const toggleEditMode = () => {
+	isEditing.value = !isEditing.value
+	if (isEditing.value) {
+		// 进入编辑模式时，复制原始数据到可编辑对象
+		Object.assign(editableInfo, JSON.parse(JSON.stringify(fileInfo)))
+	}
+}
+
+const submitChanges = async () => {
+	isEditing.value = false
+	try {
+		const changeResponse = await postFileInfoChange(fileInfo.value.fileID, fileInfo.value.paymentAmount, editableInfo);
+		if (changeResponse) {
+			message.success('修改成功！');
+		} else {
+			message.error('修改失败！');
+		}
+	} catch (err) {
+		message.error(err.message);
+	} finally {
+		loading.value = false;
+	}
+}
+
 onMounted(async () => {
 	const filterStatus = localStorage.getItem('filter')
 	if (filterStatus == "pending") {
@@ -133,11 +277,8 @@ onMounted(async () => {
 		const infoResponse = await getFileInfo(fileID);
 		if (infoResponse) {
 			fileInfo.value = infoResponse;
-			localStorage.setItem('fileName', infoResponse.fileName);
 		}
 		
-		console.log(infoResponse)
-
 		PdfUrl.value = objectStorageServer + infoResponse['previewPdfObjectName'];
 		showPdf.value = true;
 	} catch (err) {
@@ -147,6 +288,23 @@ onMounted(async () => {
 		loading.value = false;
 	}
 });
+
+const formatPaymentMethod = (method) => {
+    const map = {1: '免费', 2: '付费', 3: 'VIP免费'};
+    return map[method] || '未知';
+}
+
+const formatApprovedStatus = (status) => {
+	const map = {0: '待审核', 1: '已通过', 2: '已拒绝'};
+	return map[status] || '未知';
+}
+
+const formatCopyright = (notice) => {
+	const map = {
+		'BY-NC-ND-SA': '署名-非商业-禁止演绎-相同方式共享'
+	};
+	return map[notice] || notice;
+}
 
 // 提交反馈到后端
 const submitFeedback = async (isAccept) => {
