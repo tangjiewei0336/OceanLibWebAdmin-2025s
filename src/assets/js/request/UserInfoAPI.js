@@ -16,6 +16,7 @@ export async function login(username, password) {
             password: password,
         }),
     }).then((response) => {
+        // console.log(response)
         data = response.data.msg;
         localStorage.setItem("token", data);
         message.success('登录成功');
@@ -33,14 +34,15 @@ export async function login(username, password) {
 export async function getManageInfo(params = {}, pageSize, pageNum) {
     let data = null;
     await axiosPlugin({
-        method: "get",
-        url: baseURL + "/userInfoService/getUserAllInfo",
+        method: "post",
+        url: baseURL + "/userInfoService/searchUsers",
         data: {
             ...params,
             pageSize: pageSize,
             pageNum: pageNum,
         },
     }).then((response) => {
+        // console.log(response)
         data = response.data.msg;
         localStorage.setItem("current_usersInfo", JSON.stringify(data));
         message.success('用户信息查询成功');
@@ -50,17 +52,26 @@ export async function getManageInfo(params = {}, pageSize, pageNum) {
 
 // 更新用户名为username的用户信息，根据其他参数
 export async function update(username, params_obj = {}) {
+    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    console.log(username)
+    console.log(params_obj)
+    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     let data = null;
     await axiosPlugin({
         method: "put",
-        url: baseURL + "/userInfo/updateUserInfo",
-        params: {
-            username: username
-        },
+        url: baseURL + "/userInfoService/updateUserInfo",
+        // params: {
+        //     username: username
+        // },
         data: {
             ...params_obj
         },
     }).then((response) => {
+        console.log("---------------------------------")
+        console.log("---------------------------------")
+        console.log(response)
+        console.log("---------------------------------")
+        console.log("---------------------------------")
         if (response.data.state === "SUCCESS") {
             data = response.data.msg;
             message.success('用户信息修改成功');
@@ -70,20 +81,26 @@ export async function update(username, params_obj = {}) {
 }
 
 // 用于超级管理员删除用户
-export async function deleteUser(username) {
+export async function banUser(username) {
     let data = null;
     await axiosPlugin({
-        method: "DELETE",
-        url: baseURL + "/userAuth/ban",
+        method: "put",
+        url: baseURL + "/userInfoService/ban",
         params: {
             username: username
         },
     }).then((response) => {
+        // console.log(response.data)
         if (response.data.state === "SUCCESS") {
             data = response.data.msg;
-            message.success('用户删除成功');
+            message.success('用户封禁成功');
+        } else {
+            message.error(response.data.msg || '封禁失败');
         }
-    }).catch((response) => errorHandler(response));
+    }).catch((error) => {
+        console.error('请求失败:', error);
+        errorHandler(error);
+    });
     return data;
 }
 
@@ -91,8 +108,9 @@ export async function getUserInfo() {
     let data = null;
     await axiosPlugin({
         method: "get",
-        url: baseURL + '/userInfoService/getUserBaseInfo',
+        url: baseURL + '/userInfoService/getUserAllInfo',
     }).then((response) => {
+        // console.log(response.data)
         data = response.data.msg;
         localStorage.setItem("userInfo", JSON.stringify(data));
         message.success('用户信息已更新');
