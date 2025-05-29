@@ -2,13 +2,15 @@ import MockAdapter from 'axios-mock-adapter';
 import axiosPlugin from '@/axiosPlugin.js'
 
 const mock = new MockAdapter(axiosPlugin);
-const module = "adminInfo"
+const baseServerMock = '127.0.0.1';
+const baseServerPortMock = '8080';
+const baseURL_Mock = 'http://' + baseServerMock + (baseServerPortMock != null ? (':' + baseServerPortMock) : '');
 
 // login
 const MOCK_USERNAME = "111";
 const MOCK_PASSWORD = "111";
 
-mock.onPost(module + "/login").reply((config) => {
+mock.onPost(baseURL_Mock + '/userAuth/login').reply((config) => {
 
     const params = new URLSearchParams(config.data);
     const username = params.get("username");
@@ -23,16 +25,73 @@ mock.onPost(module + "/login").reply((config) => {
 });
 
 // 模拟一个 GET 请求
-mock.onGet("/adminInfo/getManageInfo").reply((config) => {
+mock.onPost(baseURL_Mock + "/userInfoService/searchUsers").reply((config) => {
     // 模拟的返回数据
+    console.log("idowajodiwa");
     const mockResponse = {
         code: "0",
-        msg: dataSource1,
+        msg: {records:dataSource1, total:dataSource1.length},
         state: "SUCCESS"
     };
 
     return [200, mockResponse];  // 返回模拟的响应
 });
+
+mock.onPut(baseURL_Mock + '/userInfoService/updateUserInfo').reply((config) => {
+    const urlParams = new URLSearchParams(config.params);
+    const username = urlParams.get("username");
+
+    // 解析更新的数据
+    const updateData = JSON.parse(config.data);
+
+    // 在 dataSource1 中查找该用户并更新信息
+    const user = dataSource1.find(user => user.username === username);
+    if (user) {
+        // Object.assign(user, updateData);
+        for (const key in updateData) {
+            if (updateData.hasOwnProperty(key) && user.hasOwnProperty(key)) {
+                user[key] = updateData[key];
+            }
+        }
+        return [200, {
+            code: "0",
+            msg: user,
+            state: "SUCCESS"
+        }];
+    } else {
+        return [404, {
+            code: "-1",
+            msg: "用户不存在",
+            state: "FAIL"
+        }];
+    }
+});
+
+
+mock.onPut(baseURL_Mock + '/userInfoService/ban').reply((config) => {
+    const urlParams = new URLSearchParams(config.params);
+    const username = urlParams.get("username");
+
+    const index = dataSource1.findIndex(user => user.username === username);
+    if (index !== -1) {
+        dataSource1[index].isValid = -1;
+        return [200, {
+            code: "0",
+            msg: {},
+            state: "SUCCESS"
+        }];
+    } else {
+        return [404, {
+            code: "-1",
+            msg: "用户不存在",
+            state: "FAIL"
+        }];
+    }
+});
+
+
+
+
 
 
 
@@ -46,8 +105,8 @@ const MOCK_SUCCESS_MESSAGE = [
             "password": null,
             "studentName": "李明",
             "createTime": 11111,
-            "role": "admin",
-            // "role": "superadmin",
+            // "role": "ADMIN",
+            "role": "SUPERADMIN",
             "groupId": 0,
             "status": 0,
             "groupName": null
@@ -56,7 +115,7 @@ const MOCK_SUCCESS_MESSAGE = [
     }
 ]
 
-mock.onGet(module + "/getUserInfo").reply((config) => {
+mock.onGet(baseURL_Mock + '/userInfoService/getUserBaseInfo').reply((config) => {
     console.log("here")
     return MOCK_SUCCESS_MESSAGE;
   });
@@ -69,10 +128,10 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
-    role:'admin',
+    isValid: 1,
+    role:'ADMIN',
     avatar:'http://app.its.csu.edu.cn/fe//upload/appserver/csuPortal/headimgs/3940312_1502498861516.jpg',
     college:'计算机科学与技术学院',
     nickname:'六百六十六',
@@ -84,10 +143,11 @@ const dataSource1 = [
     age: 42,
     address: '上海市普陀区金沙江路 1517 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 0,
+    isValid: 0,
     role:'user',
+    avatar:'http://app.its.csu.edu.cn/fe//upload/appserver/csuPortal/headimgs/3940312_1502498861516.jpg',
     nickname:'七百七十七',
 },
 {
@@ -96,19 +156,19 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
-    role:'superadmin',
+    isValid: 1,
+    role:'SUPERADMIN',
 },{
     key: '4',
     username: '张三2',
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
 },{
     key: '5',
@@ -116,9 +176,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
 },{
     key: '6',
@@ -126,9 +186,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
 },{
     key: '7',
@@ -136,9 +196,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
 },{
     key: '8',
@@ -146,9 +206,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
 },{
     key: '9',
@@ -156,9 +216,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
 },{
     key: '10',
@@ -166,9 +226,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
 },{
     key: '11',
@@ -176,9 +236,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
 },{
     key: '12',
@@ -186,9 +246,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
 },{
     key: '13',
@@ -196,9 +256,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
 },{
     key: '14',
@@ -206,9 +266,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
 },{
     key: '15',
@@ -216,9 +276,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
     password: '123456',
 },{
@@ -227,9 +287,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
 },{
     key: '17',
@@ -237,9 +297,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
     password: '123456',
 },{
@@ -248,9 +308,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
     password: '123456',
 },{
@@ -259,9 +319,9 @@ const dataSource1 = [
     age: 32,
     address: '上海市普陀区金沙江路 1518 弄',
     email: 'zhangsan@example.com',
-    student_id: '13800000001',
+    studentID: '13800000001',
     description: '张三是一个非常努力的人，热衷于学习和帮助他人。',
-    is_valid: 1,
+    isValid: 1,
     role:'user',
     password: '123456',
 }];

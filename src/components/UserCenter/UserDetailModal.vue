@@ -1,14 +1,13 @@
 <template>
-  <div class="user-detail-container">
+  <div class="user-detail-container" ref="detailTop">
     <!-- 编辑按钮 -->
-    <div style="text-align: right; margin-bottom: 12px;">
+    <!-- <div style="text-align: right; margin-bottom: 12px;">
       <a-button v-if="!isEditing" type="primary" @click="startEdit">编辑</a-button>
       <a-space v-else>
         <a-button type="primary" @click="handleUpdate">保存</a-button>
         <a-button @click="cancelEdit">取消</a-button>
       </a-space>
-    </div>
-
+    </div> -->
     <a-descriptions bordered :column="2" :label-style="{ width: '120px' }"
       :content-style="{ maxWidth: '100px', whiteSpace: 'normal', wordBreak: 'break-word' }">
       <!-- 基本身份信息 -->
@@ -21,9 +20,9 @@
         />
       </a-descriptions-item>
       <a-descriptions-item label="学号">
-        <template v-if="!isEditing">{{ userData.student_id }}</template>
+        <template v-if="!isEditing">{{ userData.studentID }}</template>
         <template v-else>
-          <a-input v-model:value="formState.student_id" />
+          <a-input v-model:value="formState.studentID" />
         </template>
       </a-descriptions-item>
 
@@ -53,9 +52,9 @@
       </a-descriptions-item>
 
       <a-descriptions-item label="账号状态">
-        <template v-if="!isEditing">{{ userData.is_valid === 1 ? '正常' : '禁用' }}</template>
+        <template v-if="!isEditing">{{ userData.isValid === 1 ? '正常' : '禁用' }}</template>
         <template v-else>
-          <a-select v-model:value="formState.is_valid" style="width: 120px">
+          <a-select v-model:value="formState.isValid" style="width: 120px">
             <a-select-option :value='1'>正常</a-select-option>
             <a-select-option :value='0'>禁用</a-select-option>
           </a-select>
@@ -110,16 +109,16 @@
       </a-descriptions-item>
 
       <a-descriptions-item label="电话号码">
-        <template v-if="!isEditing">{{ userData.phone_num }}</template>
+        <template v-if="!isEditing">{{ userData.phoneNum }}</template>
         <template v-else>
-          <a-input v-model:value="formState.phone_num" />
+          <a-input v-model:value="formState.phoneNum" />
         </template>
       </a-descriptions-item>
 
       <a-descriptions-item label="账号等级">
-        <template v-if="!isEditing">{{ userData.level_grade }}</template>
+        <template v-if="!isEditing">{{ userData.level }}</template>
         <template v-else>
-          <a-input v-model:value="formState.level_grade" />
+          <a-input v-model:value="formState.level" />
         </template>
       </a-descriptions-item>
 
@@ -128,46 +127,64 @@
       </a-descriptions-item>
 
       <a-descriptions-item label="学院">
-        <template v-if="!isEditing">{{ userData.college }}</template>
+        <template v-if="!isEditing">{{ userData.userExtraEntity.college }}</template>
         <template v-else>
-          <a-input v-model:value="formState.college" />
+          <a-input v-model:value="formState.userExtraEntity.college" />
         </template>
       </a-descriptions-item>
-
+      <!-- birthday\sex -->
       <a-descriptions-item label="专业">
-        <template v-if="!isEditing">{{ userData.major }}</template>
+        <template v-if="!isEditing">{{ userData.userExtraEntity.major }}</template>
         <template v-else>
-          <a-input v-model:value="formState.major" />
+          <a-input v-model:value="formState.userExtraEntity.major" />
         </template>
       </a-descriptions-item>
 
       <a-descriptions-item label="认证信息">
-        <template v-if="!isEditing">{{ userData.cert_id }}</template>
+        <template v-if="!isEditing">{{ userData.certID }}</template>
         <template v-else>
-          <a-input v-model:value="formState.cert_id" />
+          <a-input v-model:value="formState.certID" />
         </template>
       </a-descriptions-item>
     </a-descriptions>
+    <!-- 操作按钮区 -->
+    <div style="text-align: right; margin-top: 16px;">
+      <div style="text-align: right; margin-top: 16px;">
+        <template v-if="isEditing">
+          <a-button type="primary" @click="handleUpdate">保存</a-button>
+          <a-button @click="cancelEdit" style="margin-left: 8px;">取消</a-button>
+        </template>
+        <template v-else>
+          <a-button type="primary" @click="startEdit">编辑</a-button>
+        </template>
+      </div>
+    </div>
 
 
     <div class="extra-info">
       <h3>附加信息</h3>
+    <!-- <a-card title="附加信息"> -->
       <p class="inline-field">
         <strong>个性签名：</strong>
-        <!-- {{ userData.personal_signature || '暂无' }} -->
-        <template v-if="!isEditing">{{ userData.personal_signature }}</template>
+        <!-- {{ userData.personalSignature || '暂无' }} -->
+        <template v-if="!isEditing">{{ userData.userExtraEntity.personalSignature }}</template>
         <template v-else>
-          <a-input v-model:value="formState.personal_signature" />
+          <!-- <a-input v-model:value="formState.userExtraEntity.personalSignature" /> -->
+          <a-input v-show="isEditing" v-model:value="formState.userExtraEntity.personalSignature" />
+          <span v-show="!isEditing">{{ userData.userExtraEntity.personalSignature }}</span>
+
         </template>
       </p>
-      <p><strong>总点赞量：</strong>{{ userData.like_num }}</p>
-      <p><strong>文章发表量：</strong>{{ userData.file_collected_num }}</p>
+      <p><strong>总点赞量：</strong>{{ userData.userExtraEntity.likeNumber }}</p>
+      <p><strong>文章发表量：</strong>{{ userData.userExtraEntity.fileCollectedNumber }}</p>
     </div>
+  <!-- </a-card> -->
+  
   </div>
 </template>
   
 <script setup>
-import { ref, watch, h } from 'vue';
+import { ref, watch, h, nextTick } from 'vue';
 import { message } from 'ant-design-vue';
 import { update } from '@/assets/js/request/UserInfoAPI.js';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons-vue';
@@ -182,11 +199,28 @@ const props = defineProps({
 
 const isEditing = ref(false);
 const formState = ref({ ...props.userData });
+const initialData = ref({ ...props.userData });
+const detailTop = ref(null)
 const showPassword = ref(false);
+const emit = defineEmits(['user-updated']);
+
 
 const startEdit = () => {
-  formState.value = { ...props.userData }; // 重新复制一份可编辑对象
+  const { userExtraEntity = {} } = props.userData;
+  formState.value = {
+    ...props.userData,
+    userExtraEntity: {
+      college: userExtraEntity.college || '',
+      major: userExtraEntity.major || '',
+      personalSignature: userExtraEntity.personalSignature || '',
+      likeNumber: userExtraEntity.likeNumber || 0,
+      fileCollectedNumber: userExtraEntity.fileCollectedNumber || 0
+    }
+  };
   isEditing.value = true;
+  nextTick(() => {
+    detailTop.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
 };
 
 const cancelEdit = () => {
@@ -197,6 +231,11 @@ const cancelEdit = () => {
 
 const handleUpdate = async () => {
   const currentUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  // 拒绝修改超级管理员信息
+  if (currentUserInfo.role !== 'SUPERADMIN' && initialData.value.role === 'SUPERADMIN') {
+    message.warning('您无权修改超级管理员的信息');
+    return;
+  }
 
   if (currentUserInfo.role !== 'SUPERADMIN' && formState.value.role === 'SUPERADMIN') {
     message.error('您无权将用户角色设置为超级管理员');
@@ -208,6 +247,7 @@ const handleUpdate = async () => {
     message.success('用户信息修改成功');
     isEditing.value = false;
     // 可选：emit 通知父组件刷新数据
+    emit('user-updated', formState.value);
   }
 };
 
@@ -215,6 +255,7 @@ watch(
   () => props.userData,
   (newVal) => {
     formState.value = { ...newVal };
+    initialData.value = { ...newVal }; // 保留初始状态
     isEditing.value = false;
   },
   { immediate: true, deep: true }
