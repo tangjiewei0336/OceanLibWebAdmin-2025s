@@ -6,7 +6,7 @@
     <span class="navbar__mask"></span>
   </div>
   <a-layout>
-    <Sidebar :selectedKey="selectedKey" :menu="menu" :role="role" />
+    <Sidebar :selectedKey="selectedKey" :openKeys="openKeys" :menu="menu" :role="role" />
     <a-layout style="padding: 0 24px 24px; overflow: auto">
       <a-layout-content>
         <div style="padding: 0 50px">
@@ -40,8 +40,8 @@ const menu = [
 	{
 		label: '通知',
 		icon: ['fas', 'home'],
-		row: '0',
 		name: 'Notice',
+		row: '0',
 	},
 	{
 		label: '文档审核',
@@ -56,17 +56,33 @@ const menu = [
     routeName: 'UserManagementEntry', 
     row: '2',
     // items: [
-    //   {
-    //     label: '管理员页面',
-    //     name: 'user-management_admin',
-    //     role: 'ADMIN',
-    //   },
-    //   {
+      //   {
+        //     label: '管理员页面',
+        //     name: 'user-management_admin',
+        //     role: 'ADMIN',
+        //   },
+        //   {
     //     label: '超级管理员页面',
     //     name: 'user-management_superAdmin',
     //     role: 'SUPERADMIN',
     //   },
     // ],
+  },
+  {
+    label: '知乎管理',
+    icon: ['fas', 'comment-dots'],
+    name: 'qaadmin',
+    row: '3',
+    items: [
+      {
+        label: '问题管理',
+        name: 'question-management',
+      },
+      {
+        label: '回答管理',
+        name: 'answer-management',
+      },
+    ],
   },
 ];
 
