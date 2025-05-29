@@ -106,7 +106,7 @@
         width="800px"
         :footer="null"
         >
-        <UserDetailModal v-if="currentUser" :user-data="currentUser" />
+        <UserDetailModal v-if="currentUser" :user-data="currentUser" @user-updated="fetchUserData"/>
       </a-modal>
     <!-- </template>
   </PlatformNav> -->
@@ -120,12 +120,12 @@ import { Tag } from 'ant-design-vue';
 import { Modal, message, Switch  } from 'ant-design-vue';
 import { UserOutlined, CrownOutlined, StarFilled } from '@ant-design/icons-vue';
 import { SearchOutlined, EyeOutlined, DeleteFilled, DeleteOutlined } from '@ant-design/icons-vue';
-import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons-vue';
+import { CheckCircleFilled, CloseCircleFilled, SmileOutlined } from '@ant-design/icons-vue';
 
 import UserDetailModal from '@/components/UserCenter/UserDetailModal.vue';
 import { RedoOutlined } from '@ant-design/icons-vue';
 // API
-import { getManageInfo, update, deleteUser } from '@/assets/js/request/UserInfoAPI.js';
+import { getManageInfo, update, banUser } from '@/assets/js/request/UserInfoAPI.js';
 
 const aTag = Tag; // 获取组件引用
 // 添加状态控制
@@ -145,13 +145,16 @@ const fetchUserData = async () => {
     const pageNum = pagination.value.current;
     const pageSize = pagination.value.pageSize;
     // let searchValue = searchText.value;
-    const response = await getManageInfo(searchParams.value, pageNum, pageSize);
+    // console.log(searchParams.value)
+    const response = await getManageInfo(searchParams.value, pageSize, pageNum);
+    // console.log(response);
     let current_usersInfo = localStorage.getItem('current_usersInfo');
+
     if (current_usersInfo != undefined) {
       current_usersInfo = JSON.parse(current_usersInfo);
-      dataSource.value = current_usersInfo;
+      dataSource.value = current_usersInfo.records;
       console.log(dataSource.value);
-      pagination.value.total = current_usersInfo.length; // 需要加一个返回字段
+      pagination.value.total = current_usersInfo.total;
     }
   } catch (error) {
     console.error('获取用户数据失败', error);
@@ -164,6 +167,11 @@ const handleTableChange = (newPagination) => {
   pagination.value.pageSize = newPagination.pageSize;
   console.log(pagination.value.current);
   console.log(pagination.value.pageSize);
+
+  let totalRecords = pagination.value.total;
+  const maxPage = Math.ceil(totalRecords / pagination.value.pageSize);  
+  const validPage = Math.min(Math.max(1, newPagination), maxPage);
+
   // 重新获取数据
   fetchUserData(); 
 };
@@ -193,7 +201,7 @@ const columns = [
     align: 'center',
   },
   {
-    title: '学号', dataIndex: 'student_id', key: 'student_id',
+    title: '学号', dataIndex: 'studentID', key: 'studentID',
     width: '12%',
     ellipsis: true,  // 超过最大宽度时显示省略号
     align: 'center',
@@ -270,7 +278,7 @@ const columns = [
     }
   },
   {
-    title: '账号状态', dataIndex: 'is_valid', key: 'is_valid',
+    title: '账号状态', dataIndex: 'isValid', key: 'isValid',
     width: '12%',
     align: 'center',
     customRender: ({ text }) => {
@@ -335,13 +343,19 @@ const columns = [
 
         h('a', {
           onClick: () => {
+            const isActive = record.isValid === -1;
+            const modalContent = isActive
+              ? `确认激活用户：${record.username}？`
+              : `确认封禁用户：${record.username}？`;
             Modal.confirm({
-              title: '确认删除该用户吗？',
+              title: isActive ? '确认激活该用户吗？' : '确认封禁该用户吗？',
               content: `用户名：${record.username}`,
               okText: '确定',
               cancelText: '取消',
               onOk: async () => {
-                const res = await deleteUser(record.username);
+                const res = isActive
+                ? await update(record.username, { isValid: 1 })  // 激活用户
+                : await banUser(record.username);  // 封禁用户
                 if (res) {
                   fetchUserData();
                 }
@@ -350,13 +364,13 @@ const columns = [
           },
           style: {
             cursor: 'pointer',
-            color: 'red',
+            color: record.isValid === -1 ? 'green':'red',
             // textDecoration: 'underline'
           }
           },
           [
-            h(DeleteFilled, { style: { marginRight: '5px'} }), // 垃圾桶图标
-            '删除用户'
+            h(record.isValid === -1 ? SmileOutlined : DeleteFilled, { style: { marginRight: '5px'} }), // 垃圾桶图标
+            record.isValid === -1 ? '激活用户' : '封禁用户'
           ]
         )
       ]);
