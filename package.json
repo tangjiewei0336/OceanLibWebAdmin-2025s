@@ -16,6 +16,7 @@
     "@fortawesome/pro-solid-svg-icons": "file:./modules/fontawesome-pro/pro-solid-svg-icons",
     "@fortawesome/vue-fontawesome": "^3.0.6",
     "@jaames/iro": "^5.5.2",
+    "@wangeditor/editor-for-vue": "^5.1.12",
     "ant-design-vue": "^4.2.1",
     "axios": "^1.7.2",
     "dayjs": "^1.11.13",
