@@ -51,18 +51,23 @@ const menu = [
 		label: '用户管理',
 		icon: ['fas', 'user'],
 		row: '2',
-		items: [
-		{
-			label: '一般用户管理',
-			name: 'UserManage',
-		},
-		{
-			label: '管理员管理',
-			name: 'AdminManage',
-			role: 'superadmin',
-		},
-		],
 	},
+  {
+    label: '知乎管理',
+    icon: ['fas', 'comment-dots'],
+    name: 'qaadmin',
+    row: '3',
+    items: [
+      {
+        label: '问题管理',
+        name: 'question-management',
+      },
+      {
+        label: '回答管理',
+        name: 'answer-management',
+      },
+    ],
+  },
 ];
 
 const selectedKeys = ref([]);

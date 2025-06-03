@@ -73,19 +73,8 @@ export async function postFileApprove(fileID, reason) {
     return data;
 }
 
-export async function postFileInfoChange(fileID, paymentAmount, editableInfo) {
+export async function postFileInfoChange(fileID, paymentAmount, editableInfo, originalAuthor) {
     let data = null;
-    console.log(fileID)
-    console.log(paymentAmount)
-    console.log(editableInfo.abstractContent)
-    console.log(editableInfo.copyrightNotice)
-    console.log(editableInfo.title)
-    console.log(editableInfo.paymentMethod)
-    console.log(editableInfo.isAllowAnon)
-    console.log(editableInfo.isAllowComment)
-    console.log(editableInfo.isAllowVipfree)
-    console.log(editableInfo.isOriginal)
-    console.log(editableInfo.originalAuthor)
     await axiosPlugin({
         method: "post",
         url: baseURL + "/docInfoService/changeDocumentInfo",
@@ -100,8 +89,7 @@ export async function postFileInfoChange(fileID, paymentAmount, editableInfo) {
             isAllowComment: editableInfo.isAllowComment,
             isAllowVipfree: editableInfo.isAllowVipfree,
             isOriginal: editableInfo.isOriginal,
-            originalAuthor: editableInfo.originalAuthor,
-            
+            originalAuthor: originalAuthor,            
         }),
     }).then((response) => {
         data = response.data.msg;

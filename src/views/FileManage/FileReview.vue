@@ -190,6 +190,9 @@ import { getFileInfo, postFileRejection, postFileApprove, postFileInfoChange } f
 import { useRouter } from 'vue-router';
 import { objectStorageServer } from '@/config'
 
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
+
 const router = useRouter();
 
 // 响应式数据
@@ -211,8 +214,12 @@ const formatSize = (bytes) => {
 };
 
 // 格式化日期
+// const formatDate = (dateString) => {
+// 	return new Date(dateString).toLocaleString();
+// };
+
 const formatDate = (dateString) => {
-	return new Date(dateString).toLocaleString();
+  return dateString ? dayjs(dateString).format('YYYY-MM-DD HH:mm:ss') : '无日期';
 };
 
 const getTextPlaceHolder = () => {
@@ -231,19 +238,16 @@ const isEditing = ref(false)
 const editableInfo = reactive({})
 
 const toggleEditMode = () => {
-	isEditing.value = !isEditing.value
-	if (isEditing.value) {
-		// 进入编辑模式时，复制原始数据到可编辑对象
-		Object.assign(editableInfo, JSON.parse(JSON.stringify(fileInfo)))
-	}
-}
+  	isEditing.value = !isEditing.value;
+};
 
 const submitChanges = async () => {
 	isEditing.value = false
 	try {
-		const changeResponse = await postFileInfoChange(fileInfo.value.fileID, fileInfo.value.paymentAmount, editableInfo);
+		const changeResponse = await postFileInfoChange(fileInfo.value.fileID, fileInfo.value.paymentAmount, editableInfo, fileInfo.value.uploadUsername);
 		if (changeResponse) {
 			message.success('修改成功！');
+			router.go(0);
 		} else {
 			message.error('修改失败！');
 		}
