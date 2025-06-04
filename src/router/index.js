@@ -7,6 +7,10 @@ import UserSuperAdmin from '../views/UserSuperAdmin/Index.vue'
 
 import UserAdmin from '../views/UserAdmin/Index.vue'
 
+import QuestionManagement from '../views/QuestionManagement/Index.vue'
+
+import AnswerManagement from '../views/AnswerManagement/Index.vue'
+
 import Index from '../views/Index.vue'
 
 const router = createRouter({
@@ -15,32 +19,79 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     {
-      path: '/experiment/welcome',
+      path: '/home',
       name: 'Welcome',
-      component: Welcome
+      component: Welcome,
+      children: [
+        {
+          path: '/superAdmin/user-management',
+          name: 'user-management_superAdmin',
+          component: UserSuperAdmin,
+        },
+        {
+          path: '/admin/user-management',
+          name: 'user-management_admin',
+          component: UserAdmin,
+        },
+        {
+          path: '/admin/question-management',
+          name: 'question-management',
+          component: QuestionManagement,
+        },
+        {
+          path: '/admin/answer-management',
+          name: 'answer-management',
+          component: AnswerManagement,
+          props: (route) => ({
+            questionId: route.query.questionId,
+            questionTitle: route.query.questionTitle,
+          })
+        },
+        {
+          path: '/user-management-entry',
+          name: 'UserManagementEntry',
+          beforeEnter: (to, from, next) => {
+            const role = JSON.parse(localStorage.getItem('userInfo'))?.role;
+            if (role === 'SUPERADMIN') {
+              next({ name: 'user-management_superAdmin' });
+            } else {
+              next({ name: 'user-management_admin' });
+            }
+          },
+        },
+      ]
     },
+    // {
+    //   path: '/experiment/welcome',
+    //   name: 'Welcome',
+    //   component: Welcome
+    // },
     {
       path: '/user/forgetPassword',
       name: 'ForgetPassword',
       component: ForgetPassword
     },
-
-    {
-      path: '/superAdmin/user-management',
-      name: 'user-management_superAdmin',
-      component: UserSuperAdmin,
-    },
-    {
-      path: '/admin/user-management',
-      name: 'user-management_admin',
-      component: UserAdmin,
-    },
+    // {
+    //   path: '/superAdmin/user-management',
+    //   name: 'user-management_superAdmin',
+    //   component: UserSuperAdmin,
+    // },
+    // {
+    //   path: '/admin/user-management',
+    //   name: 'user-management_admin',
+    //   component: UserAdmin,
+    // },
     {
       path: '/',
-      alias: ["/home", "/index"],
       name: 'Index',
-      component: Index
+      component: Index,
     },
+    // {
+    //   path: '/',
+    //   alias: ["/home", "/index"],
+    //   name: 'Index',
+    //   component: Index
+    // },
   ]
 })
 
@@ -56,7 +107,7 @@ router.beforeEach((to, from, next) => {
 
   if (to.path.startsWith('/superAdmin/user-management')) {
     console.log(userInfo);
-    if (userInfo && userInfo.role === 'superadmin') {
+    if (userInfo && userInfo.role === 'SUPERADMIN') {
       next(); // 放行
     } else {
       next('/'); // 或跳转到无权限提示页
