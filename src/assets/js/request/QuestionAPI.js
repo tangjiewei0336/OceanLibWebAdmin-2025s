@@ -51,7 +51,8 @@ export async function listByUsername(params = {}) {
                 username: params.username,
                 page: params.page,
                 pageSize: params.pageSize,
-                sort: 0
+                sort: 0,
+                includeDeleted: params.includeDeleted
             },
         }).then((response) => {
             // console.log(params)
@@ -68,7 +69,8 @@ export async function listByUsername(params = {}) {
             params: {
                 page: params.page,
                 pageSize: params.pageSize,
-                sort: 0
+                sort: 0,
+                includeDeleted: params.includeDeleted
             },
         }).then((response) => {
             // console.log(params)
@@ -104,21 +106,22 @@ export async function deleteQuestion(questionId) {
 // 修改/发布/隐藏问题
 export async function updateQuestion(params) {
     let data = null;
+    const formData = new FormData();
+    formData.append("title", params.title);
+    formData.append("content", params.content);
+    console.log(params.content)
     await axiosPlugin({
         method: "PUT",
         url: baseURL + "/qaService/question/update",
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        },
+        // headers: {
+        //     'Content-Type': 'multipart/form-data'
+        // },
         params: {
             questionId: params.id,
             // isPost: 1,
             // isHide: 0,
         },
-        data: {
-            title: params.title,
-            content: params.content
-        }
+        data: formData
     }).then((response) => {
         console.log(response)
         data = response.data.msg;
@@ -136,10 +139,10 @@ export async function uploadImage(file) {
         message.error('请选择要上传的图片');
         return null;
     }
-    const maxSize = 1 * 1024 * 1024; // 1MB
+    const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
-      console.error('图片不能超过1MB');
-      message.error('图片不能超过1MB');
+      console.error('图片不能超过10MB');
+      message.error('图片不能超过10MB');
       return;
     }
     if (!file.type.startsWith('image/')) {
@@ -155,15 +158,16 @@ export async function uploadImage(file) {
     await axiosPlugin({
         method: "POST",
         url: baseURL + "/qaService/qaFile/uploadFile",
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        },
+        // headers: {
+        //     'Content-Type': 'multipart/form-data'
+        // },
         data: formData,
     }).then((response) => {
-        console.log(response)
+        // console.log(response)
         data = response.data.msg;
         if (response.data.state === "SUCCESS") {
-            data = response.data.msg.uploadId;
+            data = baseURL + "/qaService/qaFile/downloadFile/"
+                 + response.data.msg.fileName + response.data.msg.fileSuffix;
             message.success('图片上传成功');
         } else {
             message.error(response.data.msg || '图片上传失败');

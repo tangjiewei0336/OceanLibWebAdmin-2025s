@@ -42,10 +42,10 @@ export async function getManageInfo(params = {}, pageSize, pageNum) {
             pageNum: pageNum,
         },
     }).then((response) => {
-        // console.log(response)
+        console.log(response)
         data = response.data.msg;
         localStorage.setItem("current_usersInfo", JSON.stringify(data));
-        message.success('用户信息查询成功');
+        // message.success('用户信息查询成功');
     }).catch((response) => errorHandler(response));
     return data;
 }
@@ -54,24 +54,21 @@ export async function getManageInfo(params = {}, pageSize, pageNum) {
 export async function update(username, params_obj = {}) {
     console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     console.log(username)
-    console.log(params_obj)
+    console.log({
+        ...params_obj
+    })
     console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     let data = null;
     await axiosPlugin({
         method: "put",
         url: baseURL + "/userInfoService/updateUserInfo",
-        // params: {
-        //     username: username
-        // },
+        params: {
+            username: username
+        },
         data: {
             ...params_obj
         },
     }).then((response) => {
-        console.log("---------------------------------")
-        console.log("---------------------------------")
-        console.log(response)
-        console.log("---------------------------------")
-        console.log("---------------------------------")
         if (response.data.state === "SUCCESS") {
             data = response.data.msg;
             message.success('用户信息修改成功');
@@ -113,7 +110,49 @@ export async function getUserInfo() {
         // console.log(response.data)
         data = response.data.msg;
         localStorage.setItem("userInfo", JSON.stringify(data));
-        message.success('用户信息已更新');
+    }).catch((response) => errorHandler(response));
+    return data;
+}
+
+// 上传图片接口
+export async function uploadImage(file) {
+    if (!file) {
+        message.error('请选择要上传的图片');
+        return null;
+    }
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      console.error('图片不能超过10MB');
+      message.error('图片不能超过10MB');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      console.error('只允许上传图片');
+      message.error('只允许上传图片');
+      return;
+    }
+    let data = null;
+
+    const formData = new FormData();
+    formData.append('uploadFile', file);
+
+    await axiosPlugin({
+        method: "POST",
+        url: baseURL + "/qaService/qaFile/uploadFile",
+        // headers: {
+        //     'Content-Type': 'multipart/form-data'
+        // },
+        data: formData,
+    }).then((response) => {
+        // console.log(response)
+        data = response.data.msg;
+        if (response.data.state === "SUCCESS") {
+            data = baseURL + "/qaService/qaFile/downloadFile/"
+                 + response.data.msg.fileName + response.data.msg.fileSuffix;
+            message.success('图片上传成功');
+        } else {
+            message.error(response.data.msg || '图片上传失败');
+        }
     }).catch((response) => errorHandler(response));
     return data;
 }

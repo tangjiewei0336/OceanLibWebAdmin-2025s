@@ -30,6 +30,61 @@ export async function gainAnswer(params) {
     return data;
 }
 
+// 获取指定问题的回答列表
+export async function gainAnswerByQuestion(params) {
+    let data = null;
+    // console.log(params)
+    await axiosPlugin({
+        method: "GET",
+        url: baseURL + "/qaService/answer/list",
+        params: {
+            questionId: params.questionId,
+            page: params.page,
+            pageSize: params.pageSize,
+            includeDeleted: params.includeDeleted,
+        },
+    }).then((response) => {
+        console.log(response)
+        data = response.data.msg;
+        if (response.data.state === "SUCCESS") {
+            data = response.data.msg;
+            localStorage.setItem("AnswerInfoList", JSON.stringify(data));
+            message.success('回答列表获取成功');
+        }
+    // }).catch((response) => errorHandler(response));
+    }).catch((response) => {
+        console.log(response);
+    })
+    return data;
+}
+
+// 获取指定问题的回答列表 TODO
+export async function gainAnswerByUser(params) {
+    let data = null;
+    console.log(params)
+    await axiosPlugin({
+        method: "GET",
+        url: baseURL + "/qaService/answer/myAnswers",
+        params: {
+            username: params.username,
+            page: params.page,
+            pageSize: params.pageSize,
+        },
+    }).then((response) => {
+        console.log(response)
+        data = response.data.msg;
+        if (response.data.state === "SUCCESS") {
+            data = response.data.msg;
+            localStorage.setItem("AnswerInfoList", JSON.stringify(data));
+            message.success('回答列表获取成功');
+        }
+    // }).catch((response) => errorHandler(response));
+    }).catch((response) => {
+        console.log(response);
+    })
+    return data;
+}
+
 // 修改回答
 export async function updateAnswerPut(params) {
     let data = null;
@@ -77,10 +132,10 @@ export async function uploadImage(file) {
         message.error('请选择要上传的图片');
         return null;
     }
-    const maxSize = 1 * 1024 * 1024; // 1MB
+    const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
-      console.error('图片不能超过1MB');
-      message.error('图片不能超过1MB');
+      console.error('图片不能超过10MB');
+      message.error('图片不能超过10MB');
       return;
     }
     if (!file.type.startsWith('image/')) {
@@ -96,15 +151,16 @@ export async function uploadImage(file) {
     await axiosPlugin({
         method: "POST",
         url: baseURL + "/qaService/qaFile/uploadFile",
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        },
+        // headers: {
+        //     'Content-Type': 'multipart/form-data'
+        // },
         data: formData,
     }).then((response) => {
-        console.log(response)
+        // console.log(response)
         data = response.data.msg;
         if (response.data.state === "SUCCESS") {
-            data = response.data.msg.uploadId;
+            data = baseURL + "/qaService/qaFile/downloadFile/"
+                 + response.data.msg.fileName + response.data.msg.fileSuffix;
             message.success('图片上传成功');
         } else {
             message.error(response.data.msg || '图片上传失败');
