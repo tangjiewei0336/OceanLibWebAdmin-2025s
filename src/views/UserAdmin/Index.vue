@@ -467,7 +467,7 @@ columns.forEach(col => {
   flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
-  margin-top: 8px;
+  /* margin-top: 8px; */
   margin-left: auto;
 }
 
