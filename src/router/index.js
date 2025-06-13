@@ -27,6 +27,21 @@ const router = createRouter({
       component: Welcome,
       children: [
         {
+          path: 'notice',
+          name: 'Notice',
+          component: Counter
+        },
+        {
+          path: 'file_list',
+          name: 'FileList',
+          component: FileList
+        },
+        {
+          path: 'file_review/:fileID',
+          name: 'FileReview',
+          component: FileReview
+        },
+        {
           path: '/superAdmin/user-management',
           name: 'user-management_superAdmin',
           component: UserSuperAdmin,
