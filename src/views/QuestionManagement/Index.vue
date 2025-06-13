@@ -509,7 +509,7 @@ const columns = [
     }, record.dislikeCount)
   },
   // 操作列，删除仅在未删除时显示
-  { title: '操作', key: 'actions', width: '12%',
+  { title: '操作', key: 'actions', width: '20%',
     customRender: ({ record }) => {
       const { isDeleted } = record
       const actions = []
