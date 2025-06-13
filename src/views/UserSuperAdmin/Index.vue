@@ -95,18 +95,12 @@
   </a-page-header>
 
   <!-- 用户详情弹窗 -->
-  <a-modal
+  <UserDetailModal
+    v-if="currentUser"
+    :user-data="currentUser"
     v-model:visible="detailVisible"
-    title="用户详情"
-    width="800px"
-    :footer="null"
-  >
-    <UserDetailModal
-      v-if="currentUser"
-      :user-data="currentUser"
-      @user-updated="onUserUpdated"
-    />
-  </a-modal>
+    @user-updated="onUserUpdated"
+  />
 </template>
 
 <script setup>
@@ -165,11 +159,15 @@ const fetchUserData = async () => {
 
 // 父组件脚本部分
 const onUserUpdated = (updatedUser) => {
-  // 方案 A：直接用后端返回的新 user 对象更新本地列表
+  // fetchUserData();
   const idx = dataSource.value.findIndex(u => u.username === updatedUser.username);
   if (idx !== -1) {
     dataSource.value.splice(idx, 1, updatedUser);
   }
+  // 2) 更新当前详情
+  currentUser.value = updatedUser;
+  // 3) 关闭弹窗
+  // detailVisible.value = false;
   // 方案 B：重新调用 fetchUserData()，刷新整张表
   // fetchUserData();
 };
@@ -504,14 +502,24 @@ columns.forEach(col => {
 /* 设置表单项的行间距 */
 .form-item-inline {
   margin-bottom: 16px;
+  flex: 0 0 auto;
 }
 
-/* 强制操作按钮一行显示并右对齐 */
+/* 修改操作按钮的样式，使其在空间足够时不换行 */
 .form-actions-inline {
-  flex: 0 0 100%;
+  flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
   margin-top: 8px;
+  margin-left: auto;
+}
+
+/* 添加表单容器样式，确保flex布局正确 */
+:deep(.ant-form) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
 }
 /* 覆盖表头单元格的上下左右内边距 */
 :deep(.ant-table-thead > tr > th) {
