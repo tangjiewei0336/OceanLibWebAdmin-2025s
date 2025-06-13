@@ -6,10 +6,23 @@
     </a-breadcrumb>
 
     <!-- 如果传入了 questionId，就显示当前问题标题 -->
-    <div v-if="questionId" class="current-question" style="margin-bottom: 16px;">
+    <!-- <div v-if="questionId" class="current-question" style="margin-bottom: 16px;">
       <a-typography-text>当前问题：</a-typography-text>
       <a-typography-text strong>{{ questionTitle }}</a-typography-text>
-    </div>
+    </div> -->
+    <a-card v-if="questionId" style="margin-bottom: 16px">
+      <a-form layout="inline" :model="searchForm" @finish="handleSearch">
+        <a-form-item :label="questionId ? '当前问题：' : '当前问题：'" class="form-item-inline">
+          {{ questionTitle }}
+        </a-form-item>
+        <a-form-item class="form-actions-inline">
+          <a-button type="default" @click="handleBack">
+            <template #icon><ArrowLeftOutlined /></template>
+            返回
+          </a-button>
+        </a-form-item>
+      </a-form>
+    </a-card>
 
     <!-- 搜索表单 -->
     <a-card v-if="!questionId" style="margin-bottom: 16px">
@@ -43,7 +56,7 @@
       :pagination="pagination"
       rowKey="id"
       @change="handleTableChange"
-      :scroll="{ x: 'max-content' }"
+      :scroll="{ x: true }"
     >
       <template #footer>
         <div>共计 {{ pagination.total }} 条数据</div>
@@ -59,13 +72,14 @@
 </template>
 
 <script setup>
-import { h, ref, onMounted, computed } from 'vue'
+import { h, ref, onMounted, computed, watch } from 'vue'
 import { message, Modal, Badge } from 'ant-design-vue'
 import { 
   EditOutlined, 
   DeleteFilled, 
   SearchOutlined,
-  RedoOutlined
+  RedoOutlined,
+  ArrowLeftOutlined 
 } from '@ant-design/icons-vue'
 import EditAnswerDrawer from '@/components/UserCenter/EditAnswerDrawer.vue'
 import { defineProps } from 'vue'
@@ -76,6 +90,12 @@ import {
   gainAnswerByUser,
   gainAnswerByQuestion,
 } from '@/assets/js/request/AnswerAPI.js'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const handleBack = () => {
+  router.back()
+}
 
 
 // 状态与数据
@@ -122,6 +142,11 @@ const handleSubmit = async (formData) => {
     message.error('更新失败: ' + (error?.message || '未知错误'))
   }
 }
+
+watch(() => router.currentRoute.value.fullPath, () => {
+  console.log('路由变化')
+  loadData()
+});
 
 // 加载数据
 const loadData = async (params = {}) => {
@@ -239,8 +264,30 @@ const delete_answer = async id => {
 }
 
 const stripHtml = (html) => {
-  return html.replace(/<[^>]+>/g, '');
+  const replaced = html.replace(/<img[^>]*>/gi, " [图片] ");
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = replaced;
+  return tempDiv.textContent || tempDiv.innerText || "";
 }
+
+const formatDate = (isoString) => {
+  if (!isoString) return ''
+  const d = new Date(isoString)
+  // zh-CN 会渲染成 “2020/6/4 上午11:39:54”，可按需调整选项
+  return d.toLocaleString('zh-CN', {
+    year:   'numeric',
+    month:  '2-digit',
+    day:    '2-digit',
+    hour:   '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).replace(/\//g, '-') // 把 “2020/06/04” 改成 “2020-06-04”
+}
+
+const lineHeight = 22 // px，根据实际字体设置
+const maxLinesDefault = 3
+const maxLinesOnHover = 6
 
 const columns = ref([
   {
@@ -253,29 +300,44 @@ const columns = ref([
     title: '内容',
     dataIndex: 'content',
     width: '26%',
-    ellipsis: true,
+    // ellipsis: true,
     customRender: ({ text }) => {
       const plainText = stripHtml(text || '');
-      return h(
-        'div',
-        {
-          style: {
-            maxWidth: '300px',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          },
-          title: plainText, // 鼠标 hover 时可以看到完整内容
+      return h('div', {
+        style: {
+          display: '-webkit-box',
+          WebkitBoxOrient: 'vertical',
+          WebkitLineClamp: 3,
+          whiteSpace: 'normal',
+          maxWidth: '200px',
+          minWidth: '120px',
+          transition: 'all 0.3s',
+          cursor: 'pointer',
+          overflow: 'hidden',
+          lineHeight: `${lineHeight}px`,
+          maxHeight: `${lineHeight * maxLinesDefault}px`,
         },
-        plainText
+        onMouseenter: (e) => {
+          // e.currentTarget.style.WebkitLineClamp = 'unset';
+          // e.currentTarget.style.overflow = 'visible';
+          e.currentTarget.style.WebkitLineClamp = '6';
+          e.currentTarget.style.maxHeight = `${lineHeight * maxLinesOnHover}px`; // 最多6行
+        },
+        onMouseleave: (e) => {
+          // e.currentTarget.style.WebkitLineClamp = '3';
+          // e.currentTarget.style.overflow = 'hidden';
+          e.currentTarget.style.WebkitLineClamp = '3';
+          e.currentTarget.style.maxHeight = `${lineHeight * maxLinesOnHover}px`;
+        }
+      }, 
+      plainText
       );
     },
-    onHeaderCell: () => ({ style: { minWidth: '150px' } }),
   },
   {
     title: '用户名',
     dataIndex: 'userId',
-    ellipsis: true,
+    // ellipsis: true,
     width: '10%',
     onHeaderCell: () => ({ style: { minWidth: '80px' } }),
   },
@@ -283,15 +345,51 @@ const columns = ref([
     title: '关联问题',
     key: 'question-title',
     dataIndex: ['question', 'title'],
-    ellipsis: true,
+    // ellipsis: true,
     width: '18%',
     customRender: ({ text, record }) => {
-      return h('a', {
-        style: { color: '#1890ff' },
-        onClick: () => console.log('查看问题:', record.question.bindId)
-      }, text);
+      return h('div', {
+        style: {
+          display: '-webkit-box',
+          WebkitBoxOrient: 'vertical',
+          WebkitLineClamp: 3,
+          whiteSpace: 'normal',
+          maxWidth: '200px',
+          minWidth: '120px',
+          transition: 'all 0.3s',
+          cursor: 'pointer',
+          overflow: 'hidden',
+          lineHeight: `${lineHeight}px`,
+          maxHeight: `${lineHeight * maxLinesDefault}px`,
+        },
+        onMouseenter: (e) => {
+          // e.currentTarget.style.WebkitLineClamp = 'unset';
+          // e.currentTarget.style.overflow = 'visible';
+          e.currentTarget.style.WebkitLineClamp = '6';
+          e.currentTarget.style.maxHeight = `${lineHeight * maxLinesOnHover}px`; // 最多6行
+        },
+        onMouseleave: (e) => {
+          // e.currentTarget.style.WebkitLineClamp = '3';
+          // e.currentTarget.style.overflow = 'hidden';
+          e.currentTarget.style.WebkitLineClamp = '3';
+          e.currentTarget.style.maxHeight = `${lineHeight * maxLinesOnHover}px`;
+        }
+      }, 
+      // [
+      //   h('a', {
+      //     style: {
+      //       color: '#1890ff',
+      //       display: '-webkit-box',
+      //       WebkitBoxOrient: 'vertical',
+      //       WebkitLineClamp: 3,
+      //       overflow: 'hidden',
+      //     },
+      //     onClick: () => console.log('查看问题:', record.question.bindId)
+      //   }, text)
+      // ]
+      text
+      );
     },
-    onHeaderCell: () => ({ style: { minWidth: '120px' } }),
   },
   {
     title: '状态',
@@ -316,7 +414,7 @@ const columns = ref([
 
       return h(
         'span',
-        { style: { display: 'inline-flex', alignItems: 'center' } },
+        { style: { display: 'inline-flex', alignItems: 'center', minWidth: '50px' } },
         [
           h(Badge, {
             status: badgeStatus,
@@ -336,8 +434,21 @@ const columns = ref([
   {
     title: '更新时间',
     dataIndex: 'updateTime',
-    width: '12%',
-    ellipsis: true,
+    sorter: false,
+    width: '8%',
+    customRender: ({ record }) =>
+    h('div', {
+      style: {
+        display: '-webkit-box',
+        WebkitBoxOrient: 'vertical',
+        WebkitLineClamp: 2,
+        overflow: 'hidden',
+        whiteSpace: 'normal',
+        maxWidth: '200px',
+        minWidth: '80px',
+      }
+    }, formatDate(record.updateTime))
+    // ellipsis: true,
   },
   {
     title: '点赞量',
@@ -345,7 +456,12 @@ const columns = ref([
     sorter: false,
     width: '8%',
     responsive: ['lg'],
-    onHeaderCell: () => ({ style: { minWidth: '60px' } }),
+    customRender: ({ record }) =>
+    h('div', {
+      style: {
+        minWidth: '50px',
+      }
+    }, record.likeCount)
   },
   {
     title: '点踩量',
@@ -353,7 +469,12 @@ const columns = ref([
     sorter: false,
     width: '8%',
     responsive: ['lg'],
-    onHeaderCell: () => ({ style: { minWidth: '60px' } }),
+    customRender: ({ record }) =>
+    h('div', {
+      style: {
+        minWidth: '50px',
+      }
+    }, record.dislikeCount)
   },
   {
     title: '评论数',
@@ -361,16 +482,22 @@ const columns = ref([
     sorter: false,
     width: '8%',
     responsive: ['lg'],
-    onHeaderCell: () => ({ style: { minWidth: '60px' } }),
+    customRender: ({ record }) =>
+    h('div', {
+      style: {
+        minWidth: '50px',
+      }
+    }, record.commentCount)
   },
   {
     title: '操作',
     key: 'actions',
-    align: 'center',
     width: '15%',
-    onHeaderCell: () => ({ style: { minWidth: '150px' } }),
+    onHeaderCell: () => ({ style: { minWidth: '100px' } }),
     customRender: ({ record }) => {
-      return h('div', { style: {justifyContent: 'center', display: 'flex', alignItems: 'center',gap: '12px', } }, [
+      return h('div', { style: {
+        display: 'flex', alignItems: 'center', gap: '12px', minWidth: '200px',} }, 
+        [
           h('a', {
               onClick: () => editAnswer(record),
               style: {
@@ -437,6 +564,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 修改操作按钮的样式，使其在空间足够时不换行 */
+.form-actions-inline {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  /* margin-top: 8px; */
+  margin-left: auto;
+}
+
 .answer-management {
   padding: 20px 24px;
   /* background-color: #f5f7fa; */
