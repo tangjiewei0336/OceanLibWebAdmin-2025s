@@ -12,6 +12,9 @@ import QuestionManagement from '../views/QuestionManagement/Index.vue'
 import AnswerManagement from '../views/AnswerManagement/Index.vue'
 
 import Index from '../views/Index.vue'
+import Counter from '../views/Dumb/Counter.vue'
+import FileList from '../views/FileManage/FileList.vue'
+import FileReview from '../views/FileManage/FileReview.vue'
 
 const router = createRouter({
   // history: createWebHistory(import.meta.env.BASE_URL),
