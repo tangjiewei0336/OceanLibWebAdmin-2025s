@@ -7,7 +7,11 @@ import Login403Fail from '@/components/Login/Login403Fail.vue'
 
 // export const baseServerAddr = 'mock.apifox.cn/m1/4591955-4241368-default';
 // export const baseServerAddr = 'localhost:8081';
-export const baseServerAddr = '8.155.41.79:8088';
+
+// export const baseServerAddr = '8.155.41.79:8088';
+export const baseServerAddr = '127.0.0.1:8080';
+
+
 // export const baseServerAddr = '81.70.166.86:8081';
 // export const baseServerAddr = 'bit-hdp-server.neoyz.cn'
 export const baseURL = 'http://' + baseServerAddr + '/';
