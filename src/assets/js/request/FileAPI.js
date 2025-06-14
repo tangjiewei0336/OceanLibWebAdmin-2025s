@@ -80,16 +80,17 @@ export async function postFileInfoChange(fileID, paymentAmount, editableInfo, or
         url: baseURL + "/docInfoService/changeDocumentInfo",
         data: qs.stringify({
             fileID: fileID,
+            folderID: editableInfo.folderID,
             paymentAmount: paymentAmount,
             abstractContent: editableInfo.abstractContent,
             copyrightNotice: editableInfo.copyrightNotice,
             title: editableInfo.title,
             paymentMethod: editableInfo.paymentMethod,
-            isAllowAnon: editableInfo.isAllowAnon,
-            isAllowComment: editableInfo.isAllowComment,
-            isAllowVipfree: editableInfo.isAllowVipfree,
-            isOriginal: editableInfo.isOriginal,
-            originalAuthor: originalAuthor,            
+            isAllowAnon: editableInfo.isAllowAnon ? 1 : 0,
+            isAllowComment: editableInfo.isAllowComment ? 1 : 0,
+            isAllowVipfree: editableInfo.isAllowVipfree ? 1 : 0,
+            isOriginal: editableInfo.isOriginal ? 1 : 0,
+            originalAuthor: originalAuthor,
         }),
     }).then((response) => {
         data = response.data.msg;
