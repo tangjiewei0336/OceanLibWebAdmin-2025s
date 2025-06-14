@@ -87,7 +87,8 @@ import EditQuestionDrawer from '@/components/UserCenter/EditQuestionDrawer.vue'
 
 import {
   searchByKeywords,
-  listByUsername,
+  // listByUsername,
+  listAll,
   deleteQuestion,
   updateQuestion,
   // listPostedByUsername,
@@ -200,10 +201,9 @@ const loadData = async (params = {}) => {
       pagination.value.total = res.length || 0
     }
     else {
-      const res = await listByUsername({
+      const res = await listAll({
         page: pageParams.page,
         pageSize: pageParams.pageSize,
-        includeDeleted: 1
       })
       console.log(res)
       questions.value = res.content || []
@@ -515,13 +515,13 @@ const columns = [
       const actions = []
       // 编辑操作
       if (!isDeleted) {
-      actions.push(
-        h('a', { onClick: () => editQuestion(record), 
-          style: { cursor: 'pointer', color: '#1677ff', whiteSpace: 'nowrap',display: 'flex', marginRight: '10px', } }, 
-          [ h(EditOutlined, { style: { marginRight: '5px' } }), '编辑' ]),
-        h('span', { style: { display: 'inline-block', width: '1px', height: '1.2em', backgroundColor: '#e0e0e0', marginRight: '10px'} })
-      )
-      // 删除操作，仅当未删除
+        actions.push(
+          h('a', { onClick: () => editQuestion(record), 
+            style: { cursor: 'pointer', color: '#1677ff', whiteSpace: 'nowrap',display: 'flex', marginRight: '10px', } }, 
+            [ h(EditOutlined, { style: { marginRight: '5px' } }), '编辑' ]),
+          h('span', { style: { display: 'inline-block', width: '1px', height: '1.2em', backgroundColor: '#e0e0e0', marginRight: '10px'} })
+        )
+        // 删除操作，仅当未删除
         actions.push(
           h('a', { onClick: () => delete_question(record.bindId), 
             style: { cursor: 'pointer', color: 'red', whiteSpace: 'nowrap',display: 'flex', marginRight: '10px',  } }, 

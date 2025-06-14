@@ -158,6 +158,7 @@ const loadData = async (params = {}) => {
         questionId: props.questionId,
         page: pagination.value.current,
         pageSize: pagination.value.pageSize,
+        includeDeleted: 1,
       })
       console.log(res)
       answers.value = res.content
@@ -174,6 +175,7 @@ const loadData = async (params = {}) => {
         username: searchForm.value.username,
         page: pagination.value.current,
         pageSize: pagination.value.pageSize,
+        includeDeleted: 1,
       })
       console.log(res)
       answers.value = res.content
@@ -184,6 +186,7 @@ const loadData = async (params = {}) => {
       let res = await gainAnswer({
         page: pagination.value.current,
         pageSize: pagination.value.pageSize,
+        includeDeleted: 1,
       })
       console.log(res)
       answers.value = res.content
@@ -495,56 +498,61 @@ const columns = ref([
     width: '15%',
     onHeaderCell: () => ({ style: { minWidth: '100px' } }),
     customRender: ({ record }) => {
-      return h('div', { style: {
-        display: 'flex', alignItems: 'center', gap: '12px', minWidth: '200px',} }, 
-        [
-          h('a', {
-              onClick: () => editAnswer(record),
-              style: {
-                cursor: 'pointer',
-                color: '#1677ff',
+      const { isDeleted } = record
+      // 编辑操作
+      if (!isDeleted) {
+        return h('div', { style: {
+          display: 'flex', alignItems: 'center', gap: '12px', minWidth: '200px',} }, 
+          [
+            h('a', {
+                onClick: () => editAnswer(record),
+                style: {
+                  cursor: 'pointer',
+                  color: '#1677ff',
+                },
               },
-            },
-            [
-              h(EditOutlined, { style: { marginRight: '5px' } }),
-              '编辑',
-            ]
-          ),
+              [
+                h(EditOutlined, { style: { marginRight: '5px' } }),
+                '编辑',
+              ]
+            ),
 
-          // 分隔竖线
-          h('span', {
-            style: {
-              display: 'inline-block',
-              width: '1px',
-              height: '1.2em',
-              backgroundColor: '#e0e0e0',
-              verticalAlign: 'middle',
-            },
-          }),
-
-          // 删除
-          h('a', {
-              onClick: () => {
-                Modal.confirm({
-                  title: '确认删除该回答？',
-                  content: `回答 ID：${record.id}`,
-                  okText: '确定',
-                  cancelText: '取消',
-                  onOk: () => delete_answer(record.id),
-                })
-              },
+            // 分隔竖线
+            h('span', {
               style: {
-                cursor: 'pointer',
-                color: 'red',
+                display: 'inline-block',
+                width: '1px',
+                height: '1.2em',
+                backgroundColor: '#e0e0e0',
+                verticalAlign: 'middle',
               },
-            },
-            [
-              h(DeleteFilled, { style: { marginRight: '5px' } }),
-              '删除',
-            ]
-          ),
-        ]
-      )
+            }),
+
+            // 删除
+            h('a', {
+                onClick: () => {
+                  Modal.confirm({
+                    title: '确认删除该回答？',
+                    content: `回答 ID：${record.id}`,
+                    okText: '确定',
+                    cancelText: '取消',
+                    onOk: () => delete_answer(record.id),
+                  })
+                },
+                style: {
+                  cursor: 'pointer',
+                  color: 'red',
+                },
+              },
+              [
+                h(DeleteFilled, { style: { marginRight: '5px' } }),
+                '删除',
+              ]
+            ),
+          ]
+        )
+      }
+      return h('div', { style: { display: 'flex', alignItems: 'center', gap: '12px', minWidth: '200px' } },)
     },
   },
 ])
