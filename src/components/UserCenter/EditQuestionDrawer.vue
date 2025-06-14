@@ -40,9 +40,16 @@
           <span>是否发布</span>
           <a-switch
             v-model:checked="form.isPosted"
+            :disabled="form.isHidden"
             style="margin-left: 8px;"
           />
         </template>
+        <!-- 没有默认插槽内容，control 区宽度被挤成 0，就不会留空 -->
+        <div v-if="form.isHidden">
+          <span style="color: rgba(0,0,0,0.45); font-size: 12px;">
+            隐藏状态下无法发布问题
+          </span>
+        </div>
       </a-form-item>
 
       <a-form-item label="问题详情" name="content">
@@ -210,6 +217,13 @@ watch(() => props.visible, (visible) => {
       isHidden: props.record.isHidden === 1 || props.record.isHidden === true,
       isPosted: props.record.isPosted === 1 || props.record.isPosted === true,
     }
+  }
+})
+
+// 监听隐藏状态变化，当隐藏时自动关闭发布状态
+watch(() => form.value.isHidden, (isHidden) => {
+  if (isHidden) {
+    form.value.isPosted = false
   }
 })
 

@@ -58,7 +58,7 @@
       :pagination="pagination"
       rowKey="id"
       @change="handleTableChange"
-      :scroll="{ x: 'max-content' }"
+      :scroll="{ x: true }"
     >
       <template #footer>
         <div>共计{{ pagination.total }}条数据</div>
@@ -87,7 +87,8 @@ import EditQuestionDrawer from '@/components/UserCenter/EditQuestionDrawer.vue'
 
 import {
   searchByKeywords,
-  listByUsername,
+  // listByUsername,
+  listAll,
   deleteQuestion,
   updateQuestion,
   // listPostedByUsername,
@@ -200,10 +201,9 @@ const loadData = async (params = {}) => {
       pagination.value.total = res.length || 0
     }
     else {
-      const res = await listByUsername({
+      const res = await listAll({
         page: pageParams.page,
         pageSize: pageParams.pageSize,
-        includeDeleted: 1
       })
       console.log(res)
       questions.value = res.content || []
@@ -304,9 +304,39 @@ const delete_question = async id => {
   })
 }
 
+const formatDate = (isoString) => {
+  if (!isoString) return ''
+  const d = new Date(isoString)
+  // zh-CN 会渲染成 “2020/6/4 上午11:39:54”，可按需调整选项
+  return d.toLocaleString('zh-CN', {
+    year:   'numeric',
+    month:  '2-digit',
+    day:    '2-digit',
+    hour:   '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).replace(/\//g, '-') // 把 “2020/06/04” 改成 “2020-06-04”
+}
+
+
 onMounted(() => {
-  loadData()
+  const saved = localStorage.getItem('question-search-state')
+  console.log(saved)
+  if (saved) {
+    const state = JSON.parse(saved)
+    searchForm.value = state.searchForm
+    pagination.value = state.pagination
+    localStorage.removeItem('question-search-state')
+    loadData()
+  } else {
+    loadData()
+  }
 })
+
+const lineHeight = 22 // px，根据实际字体设置
+const maxLinesDefault = 2
+const maxLinesOnHover = 6
 
 const columns = [
   {
@@ -318,22 +348,46 @@ const columns = [
   {
     title: '标题',
     dataIndex: 'title',
-    width: '26%',
-    ellipsis: true,
-    onHeaderCell: () => ({ style: { minWidth: '150px' } }),
+    width: '15%',
+    // ellipsis: true,
+    customRender: ({ record }) =>
+    h('div', {
+      style: {
+        display: '-webkit-box',
+        WebkitBoxOrient: 'vertical',
+        WebkitLineClamp: 3,
+        overflow: 'hidden',
+        whiteSpace: 'normal',
+        wordBreak: 'break-word',
+        maxWidth: '200px',
+        minWidth: '120px',
+        transition: 'all 0.3s',
+        cursor: 'pointer',
+        overflow: 'hidden',
+        lineHeight: `${lineHeight}px`,
+        maxHeight: `${lineHeight * maxLinesDefault}px`,
+      },
+      onMouseenter: (e) => {
+        e.currentTarget.style.WebkitLineClamp = maxLinesOnHover;
+        e.currentTarget.style.maxHeight = `${lineHeight * maxLinesOnHover}px`; // 最多6行
+      },
+      onMouseleave: (e) => {
+        e.currentTarget.style.WebkitLineClamp = maxLinesDefault;
+        e.currentTarget.style.maxHeight = `${lineHeight * maxLinesOnHover}px`;
+      }
+    }, record.title)
   },
   {
     title: '用户名',
     dataIndex: 'userId',
-    ellipsis: true,
-    width: '12%',
-    onHeaderCell: () => ({ style: { minWidth: '80px' } }),
+    // ellipsis: true,
+    width: '8%',
   },
   {
     title: '状态',
     dataIndex: 'isPosted',
     key: 'status',
-    width: '12%',
+    width: '8%',
     align: 'left',
     customRender: ({ record }) => {
       const { isDeleted, isPosted, isHidden } = record
@@ -372,7 +426,7 @@ const columns = [
 
       return h(
         'span',
-        { style: { display: 'inline-flex', alignItems: 'center' } },
+        { style: { display: 'inline-flex', alignItems: 'center', minWidth: '50px' } },
         [
           h(Badge, {
             status: badgeStatus,
@@ -387,24 +441,46 @@ const columns = [
     title: '回答数',
     dataIndex: 'answerCount',
     sorter: false,
-    width: '12%',
+    width: '8%',
     responsive: ['lg'],
-    onHeaderCell: () => ({ style: { minWidth: '60px' } }),
+    customRender: ({ record }) =>
+    h('div', {
+      style: {
+        minWidth: '50px',
+      }
+    }, record.answerCount)
   },
   {
     title: '浏览量',
     dataIndex: 'viewCount',
     sorter: false,
-    width: '12%',
+    width: '8%',
     responsive: ['lg'],
-    onHeaderCell: () => ({ style: { minWidth: '60px' } }),
+    customRender: ({ record }) =>
+    h('div', {
+      style: {
+        minWidth: '50px',
+      }
+    }, record.viewCount)
   },
   {
     title: '更新时间',
     dataIndex: 'updateTime',
     sorter: false,
-    width: '12%',
-    ellipsis: true,
+    width: '8%',
+    customRender: ({ record }) =>
+    h('div', {
+      style: {
+        display: '-webkit-box',
+        WebkitBoxOrient: 'vertical',
+        WebkitLineClamp: 2,
+        overflow: 'hidden',
+        whiteSpace: 'normal',
+        maxWidth: '200px',
+        minWidth: '80px',
+      }
+    }, formatDate(record.updateTime))
+    // ellipsis: true,
   },
   {
     title: '点赞量',
@@ -412,7 +488,12 @@ const columns = [
     sorter: false,
     width: '8%',
     responsive: ['lg'],
-    onHeaderCell: () => ({ style: { minWidth: '60px' } }),
+    customRender: ({ record }) =>
+    h('div', {
+      style: {
+        minWidth: '50px',
+      }
+    }, record.likeCount)
   },
   {
     title: '点踩量',
@@ -420,93 +501,75 @@ const columns = [
     sorter: false,
     width: '8%',
     responsive: ['lg'],
-    onHeaderCell: () => ({ style: { minWidth: '60px' } }),
+    customRender: ({ record }) =>
+    h('div', {
+      style: {
+        minWidth: '50px',
+      }
+    }, record.dislikeCount)
   },
-  {
-    title: '操作',
-    key: 'actions',
-    align: 'center',
-    width: '30%',
-    onHeaderCell: () => ({ style: { minWidth: '120px' } }),
+  // 操作列，删除仅在未删除时显示
+  { title: '操作', key: 'actions', width: '20%',
     customRender: ({ record }) => {
-      return h('div', { style: {justifyContent: 'center', display: 'flex', alignItems: 'center',gap: '12px', } }, [
-          h('a', {
-              onClick: () => editQuestion(record),
-              style: {
-                cursor: 'pointer',
-                color: '#1677ff',
-              },
-            },
-            [
-              h(EditOutlined, { style: { marginRight: '5px' } }),
-              '编辑问题信息',
-            ]
-          ),
+      const { isDeleted } = record
+      const actions = []
+      // 编辑操作
+      if (!isDeleted) {
+        actions.push(
+          h('a', { onClick: () => editQuestion(record), 
+            style: { cursor: 'pointer', color: '#1677ff', whiteSpace: 'nowrap',display: 'flex', marginRight: '10px', } }, 
+            [ h(EditOutlined, { style: { marginRight: '5px' } }), '编辑' ]),
+          h('span', { style: { display: 'inline-block', width: '1px', height: '1.2em', backgroundColor: '#e0e0e0', marginRight: '10px'} })
+        )
+        // 删除操作，仅当未删除
+        actions.push(
+          h('a', { onClick: () => delete_question(record.bindId), 
+            style: { cursor: 'pointer', color: 'red', whiteSpace: 'nowrap',display: 'flex', marginRight: '10px',  } }, 
+            [ h(DeleteFilled, { style: { marginRight: '5px' } }), '删除' ]),
+          h('span', { style: { display: 'inline-block', width: '1px', height: '1.2em', backgroundColor: '#e0e0e0', marginRight: '10px'} })
+        )
+      }
+      // 查看回答
+      actions.push(
+        h('a', { onClick: () => {
+          // 存储数据到 localStorage
+          localStorage.setItem('question-search-state', JSON.stringify({
+            searchForm: searchForm.value,
+            pagination: pagination.value,
+          }))
 
-          h('span', {
-            style: {
-              display: 'inline-block',
-              width: '1px',
-              height: '1.2em',
-              backgroundColor: '#e0e0e0',
-              verticalAlign: 'middle',
-            },
-          }),
-
-          h('a', {
-              onClick: () => {
-                Modal.confirm({
-                  title: '确认删除该问题？',
-                  content: `问题 ID：${record.bindId}`,
-                  okText: '确定',
-                  cancelText: '取消',
-                  onOk: () => delete_question(record.bindId),
-                })
-              },
-              style: {
-                cursor: 'pointer',
-                color: 'red',
-              },
-            },
-            [
-              h(DeleteFilled, { style: { marginRight: '5px' } }),
-              '删除问题',
-            ]
-          ),
-          // 分隔符
-          h('span', {
-            style: {
-              display: 'inline-block',
-              width: '1px',
-              height: '1.2em',
-              backgroundColor: '#e0e0e0',
-              verticalAlign: 'middle',
-            },
-          }),
-          // 查看所有回答
-          h('a', {
-            onClick: () => {
-              router.push({
-                name: 'answer-management',
-                query: { 
-                  questionId: record.bindId,
-                  questionTitle: record.title,
-                }
-              })
-            },
-            style: {
-              cursor: 'pointer',
-              color: '#52c41a',
-            },
-          }, [
-            h(EyeOutlined, { style: { marginRight: '5px' } }),
-            '查看所有回答'
-          ])
-        ]
+          // 然后跳转
+          router.push({
+            name: 'answer-management',
+            query: {
+              questionId: record.bindId,
+              questionTitle: record.title
+            }
+          })
+        }, 
+        style: { cursor: 'pointer', color: '#52c41a', display: 'flex',flexBasis: '100%',} }, 
+        [ h(EyeOutlined, { style: { marginRight: '5px' } }), '查看所有回答' ])
       )
-    },
-  },
-]
+      return h('div', { 
+        style: { minWidth: '120px',display: 'flex', 
+        alignItems: 'center', rowGap: '0px',
+        flexWrap: 'wrap', // ✅ 启用换行
+      } }, actions)
+  }},
+];
+
+// columns.forEach(col => {
+//   col.customCell = () => ({
+//     style: {
+//       overflow: 'hidden',
+//       textOverflow: 'ellipsis',
+//       whiteSpace: 'normal',
+//       wordBreak: 'break-word',
+//       padding: '10px 20px'
+//     }
+//   });
+// });
+
 </script>
 
 <style scoped>
@@ -524,12 +587,13 @@ const columns = [
   margin-bottom: 16px;
 }
 
-/* 强制操作按钮一行显示并右对齐 */
+/* 修改操作按钮的样式，使其在空间足够时不换行 */
 .form-actions-inline {
-  flex: 0 0 100%;
+  flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
-  margin-top: 8px;
+  /* margin-top: 8px; */
+  margin-left: auto;
 }
 /* 覆盖表头单元格的上下左右内边距 */
 :deep(.ant-table-thead > tr > th) {

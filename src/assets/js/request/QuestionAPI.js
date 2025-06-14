@@ -83,6 +83,26 @@ export async function listByUsername(params = {}) {
     return data;
 }
 
+// 列表获取个人的或者所有问题
+export async function listAll(params = {}) {
+    let data = null;
+    await axiosPlugin({
+        method: "GET",
+        url: baseURL + "/qaService/question/admin/all",
+        params: {
+            page: params.page,
+            pageSize: params.pageSize,
+        },
+    }).then((response) => {
+        // console.log(params)
+        // console.log(response)
+        data = response.data.msg;
+        localStorage.setItem("QuestionInfoList", JSON.stringify(data));
+        message.success('问题查询成功');
+    }).catch((response) => errorHandler(response));
+    return data;
+}
+
 // 删除问题
 export async function deleteQuestion(questionId) {
     let data = null;
@@ -118,8 +138,8 @@ export async function updateQuestion(params) {
         // },
         params: {
             questionId: params.id,
-            // isPost: 1,
-            // isHide: 0,
+            isPost: params.isPosted,
+            isHide: params.isHidden,
         },
         data: formData
     }).then((response) => {

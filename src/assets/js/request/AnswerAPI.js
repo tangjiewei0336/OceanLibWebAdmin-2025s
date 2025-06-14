@@ -14,6 +14,7 @@ export async function gainAnswer(params) {
         params: {
             page: params.page,
             pageSize: params.pageSize,
+            includeDeleted: params.includeDeleted,
         },
     }).then((response) => {
         console.log(response)
@@ -69,6 +70,7 @@ export async function gainAnswerByUser(params) {
             username: params.username,
             page: params.page,
             pageSize: params.pageSize,
+            includeDeleted: params.includeDeleted,
         },
     }).then((response) => {
         console.log(response)
