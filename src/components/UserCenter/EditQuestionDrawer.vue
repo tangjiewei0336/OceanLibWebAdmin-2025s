@@ -36,14 +36,16 @@
       <a-form-item
         :wrapper-col="{ span: 0 }"
       >
-        <template #label>
+        <!-- <template #label> -->
+        <div>
           <span>是否发布</span>
           <a-switch
             v-model:checked="form.isPosted"
             :disabled="form.isHidden"
             style="margin-left: 8px;"
           />
-        </template>
+        </div>
+        <!-- </template> -->
         <!-- 没有默认插槽内容，control 区宽度被挤成 0，就不会留空 -->
         <div v-if="form.isHidden">
           <span style="color: rgba(0,0,0,0.45); font-size: 12px;">
