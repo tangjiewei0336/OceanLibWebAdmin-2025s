@@ -135,7 +135,7 @@ const editorConfig = ref({
     uploadImage: {
       // 不写server，自己实现上传逻辑
       customUpload: async (file, insertFn) => {
-        console.log(file)
+        // console.log(file)
         const url = await uploadImage(file); // 你的上传函数
         if (url) {
           insertFn(url, '', '');
@@ -209,8 +209,8 @@ const handleEditorCreated = (editor) => {
 // 当可见状态变化时更新表单数据
 watch(() => props.visible, (visible) => {
   if (visible) {
-    console.log(props.record)
-    console.log(form.value)
+    // console.log(props.record)
+    // console.log(form.value)
     form.value = {
       title: props.record.title || '',
       content: props.record.content || '',

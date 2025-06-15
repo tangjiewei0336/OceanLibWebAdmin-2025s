@@ -42,7 +42,7 @@ export async function getManageInfo(params = {}, pageSize, pageNum) {
             pageNum: pageNum,
         },
     }).then((response) => {
-        console.log(response)
+        // console.log(response)
         data = response.data.msg;
         localStorage.setItem("current_usersInfo", JSON.stringify(data));
         // message.success('用户信息查询成功');
@@ -52,12 +52,12 @@ export async function getManageInfo(params = {}, pageSize, pageNum) {
 
 // 更新用户名为username的用户信息，根据其他参数
 export async function update(username, params_obj = {}) {
-    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    console.log(username)
-    console.log({
-        ...params_obj
-    })
-    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    // console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    // console.log(username)
+    // console.log({
+    //     ...params_obj
+    // })
+    // console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     let data = null;
     await axiosPlugin({
         method: "put",
