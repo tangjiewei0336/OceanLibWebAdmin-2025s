@@ -124,8 +124,14 @@ router.beforeEach((to, from, next) => {
   }
 
   if (to.path.startsWith('/superAdmin/user-management')) {
-    console.log(userInfo);
+    // console.log(userInfo);
     if (userInfo && userInfo.role === 'SUPERADMIN') {
+      next(); // 放行
+    } else {
+      next('/'); // 或跳转到无权限提示页
+    }
+  } else if (to.path.startsWith('/admin/user-management')) {
+    if (userInfo && userInfo.role === 'ADMIN') {
       next(); // 放行
     } else {
       next('/'); // 或跳转到无权限提示页
