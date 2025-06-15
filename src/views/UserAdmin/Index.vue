@@ -89,7 +89,7 @@
       :scroll="{ x: 'max-content' }"
     >
       <template #footer>
-        <div>共计 {{ dataSource.length }} 条数据</div>
+        <div>共计 {{ pagination.total }} 条数据</div>
       </template>
     </a-table>
   </a-page-header>
@@ -133,6 +133,8 @@ const pagination = ref({
   current: 1,
   pageSize: 10,
   total: 50, // 从后端获取总条数
+  showSizeChanger: true,
+  showQuickJumper: true,
 });
 const searchParams = ref({ username: "", nickname: "", realname: "", college: "", major: "" }); // 搜索参数
 const loading = ref(false);
