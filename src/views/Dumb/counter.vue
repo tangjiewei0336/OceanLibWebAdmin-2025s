@@ -1,9 +1,9 @@
 <template>
     <div class="simple-counter">
-      <h1>{{ title }}</h1>
-      <p>当前计数：{{ count }}</p>
-      <button @click="increment">增加</button>
-      <button @click="reset">重置</button>
+      <!-- <h1>{{ title }}</h1> -->
+      <!-- <p>当前计数：{{ count }}</p> -->
+      <!-- <button @click="increment">增加</button>
+      <button @click="reset">重置</button> -->
     </div>
   </template>
   

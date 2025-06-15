@@ -29,7 +29,7 @@ const router = createRouter({
         {
           path: 'notice',
           name: 'Notice',
-          component: Counter
+          // component: Counter
         },
         {
           path: 'file_list',
