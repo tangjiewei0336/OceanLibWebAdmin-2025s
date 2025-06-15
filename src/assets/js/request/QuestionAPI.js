@@ -16,7 +16,7 @@ export async function searchByKeywords(params = {}) {
             rows: params.rows
         },
     }).then((response) => {
-        console.log(response)
+        // console.log(response)
         let searchHits = response.data.msg.searchHits;
         // let questionListTemp = searchHits.map((data) => {
         //     if (data.highlightFields != null) {
@@ -129,7 +129,7 @@ export async function updateQuestion(params) {
     const formData = new FormData();
     formData.append("title", params.title);
     formData.append("content", params.content);
-    console.log(params.content)
+    // console.log(params.content)
     await axiosPlugin({
         method: "PUT",
         url: baseURL + "/qaService/question/update",
@@ -143,7 +143,7 @@ export async function updateQuestion(params) {
         },
         data: formData
     }).then((response) => {
-        console.log(response)
+        // console.log(response)
         data = response.data.msg;
         if (response.data.state === "SUCCESS") {
             data = response.data.msg;

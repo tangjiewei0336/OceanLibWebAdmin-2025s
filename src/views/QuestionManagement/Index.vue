@@ -124,7 +124,7 @@ const currentRecord = ref({})
 
 // 处理提交
 const handleSubmit = async (formData) => {
-  console.log('收到表单数据：', formData)
+  // console.log('收到表单数据：', formData)
   try {
     await updateQuestion(formData)
     loadData()
@@ -196,7 +196,7 @@ const loadData = async (params = {}) => {
         rows: pageParams.pageSize
       })
       // 处理响应数据（根据实际API响应结构调整）
-      console.log(res)
+      // console.log(res)
       questions.value = res || []
       pagination.value.total = res.length || 0
     }
@@ -205,7 +205,7 @@ const loadData = async (params = {}) => {
         page: pageParams.page,
         pageSize: pageParams.pageSize,
       })
-      console.log(res)
+      // console.log(res)
       questions.value = res.content || []
       pagination.value.total = res.totalElements || 0
 
@@ -322,7 +322,7 @@ const formatDate = (isoString) => {
 
 onMounted(() => {
   const saved = localStorage.getItem('question-search-state')
-  console.log(saved)
+  // console.log(saved)
   if (saved) {
     const state = JSON.parse(saved)
     searchForm.value = state.searchForm

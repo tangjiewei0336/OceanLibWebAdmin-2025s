@@ -143,10 +143,11 @@
 
         <!-- 账号等级 -->
         <a-descriptions-item label="账号等级">
-          <template v-if="!isEditing">{{ userData.level || '' }}</template>
+          <!-- <template v-if="!isEditing">{{ userData.level || '' }}</template>
           <template v-else>
             <a-input v-model:value="formState.level" />
-          </template>
+          </template> -->
+          {{ formState.level }}
         </a-descriptions-item>
 
         <!-- 注册时间（只读） -->

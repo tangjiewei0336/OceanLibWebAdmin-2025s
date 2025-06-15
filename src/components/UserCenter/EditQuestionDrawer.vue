@@ -36,14 +36,16 @@
       <a-form-item
         :wrapper-col="{ span: 0 }"
       >
-        <template #label>
+        <!-- <template #label> -->
+        <div>
           <span>是否发布</span>
           <a-switch
             v-model:checked="form.isPosted"
             :disabled="form.isHidden"
             style="margin-left: 8px;"
           />
-        </template>
+        </div>
+        <!-- </template> -->
         <!-- 没有默认插槽内容，control 区宽度被挤成 0，就不会留空 -->
         <div v-if="form.isHidden">
           <span style="color: rgba(0,0,0,0.45); font-size: 12px;">
@@ -133,7 +135,7 @@ const editorConfig = ref({
     uploadImage: {
       // 不写server，自己实现上传逻辑
       customUpload: async (file, insertFn) => {
-        console.log(file)
+        // console.log(file)
         const url = await uploadImage(file); // 你的上传函数
         if (url) {
           insertFn(url, '', '');
@@ -207,8 +209,8 @@ const handleEditorCreated = (editor) => {
 // 当可见状态变化时更新表单数据
 watch(() => props.visible, (visible) => {
   if (visible) {
-    console.log(props.record)
-    console.log(form.value)
+    // console.log(props.record)
+    // console.log(form.value)
     form.value = {
       title: props.record.title || '',
       content: props.record.content || '',

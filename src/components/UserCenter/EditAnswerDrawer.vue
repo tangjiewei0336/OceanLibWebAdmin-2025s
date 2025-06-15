@@ -114,7 +114,7 @@ const editorConfig = ref({
     uploadImage: {
       // 不写server，自己实现上传逻辑
       customUpload: async (file, insertFn) => {
-        console.log(file)
+        // console.log(file)
         const url = await uploadImage(file); // 你的上传函数
         if (url) {
           insertFn(url, '', '');

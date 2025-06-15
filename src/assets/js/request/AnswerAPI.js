@@ -17,7 +17,7 @@ export async function gainAnswer(params) {
             includeDeleted: params.includeDeleted,
         },
     }).then((response) => {
-        console.log(response)
+        // console.log(response)
         data = response.data.msg;
         if (response.data.state === "SUCCESS") {
             data = response.data.msg;
@@ -45,7 +45,7 @@ export async function gainAnswerByQuestion(params) {
             includeDeleted: params.includeDeleted,
         },
     }).then((response) => {
-        console.log(response)
+        // console.log(response)
         data = response.data.msg;
         if (response.data.state === "SUCCESS") {
             data = response.data.msg;
@@ -62,7 +62,7 @@ export async function gainAnswerByQuestion(params) {
 // 获取指定问题的回答列表 TODO
 export async function gainAnswerByUser(params) {
     let data = null;
-    console.log(params)
+    // console.log(params)
     await axiosPlugin({
         method: "GET",
         url: baseURL + "/qaService/answer/myAnswers",
@@ -73,7 +73,7 @@ export async function gainAnswerByUser(params) {
             includeDeleted: params.includeDeleted,
         },
     }).then((response) => {
-        console.log(response)
+        // console.log(response)
         data = response.data.msg;
         if (response.data.state === "SUCCESS") {
             data = response.data.msg;
@@ -82,7 +82,7 @@ export async function gainAnswerByUser(params) {
         }
     // }).catch((response) => errorHandler(response));
     }).catch((response) => {
-        console.log(response);
+        // console.log(response);
     })
     return data;
 }
@@ -118,7 +118,7 @@ export async function deleteAnswer(answerId) {
             answerId: answerId,
         },
     }).then((response) => {
-        console.log(response)
+        // console.log(response)
         data = response.data.msg;
         if (response.data.state === "SUCCESS") {
             data = response.data.msg;

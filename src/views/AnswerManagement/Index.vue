@@ -133,7 +133,7 @@ const currentRecord = ref({})
 
 // 处理提交
 const handleSubmit = async (formData) => {
-  console.log('收到表单数据：', formData)
+  // console.log('收到表单数据：', formData)
   try {
     await updateAnswerPut(formData)
     message.success('更新成功')
@@ -144,13 +144,13 @@ const handleSubmit = async (formData) => {
 }
 
 watch(() => router.currentRoute.value.fullPath, () => {
-  console.log('路由变化')
+  // console.log('路由变化')
   loadData()
 });
 
 // 加载数据
 const loadData = async (params = {}) => {
-  console.log('加载回答数据!!')
+  // console.log('加载回答数据!!')
   loading.value = true
   try {
     if (props.questionId != '') {
@@ -160,35 +160,35 @@ const loadData = async (params = {}) => {
         pageSize: pagination.value.pageSize,
         includeDeleted: 1,
       })
-      console.log(res)
+      // console.log(res)
       answers.value = res.content
       pagination.value.total = res.totalElements
     }
     else if (searchForm.value.username && searchForm.value.username != '') {
-      console.log("TODO")
-      console.log({
-        username: searchForm.value.username,
-        page: pagination.value.current,
-        pageSize: pagination.value.pageSize,
-      })
+      // console.log("TODO")
+      // console.log({
+      //   username: searchForm.value.username,
+      //   page: pagination.value.current,
+      //   pageSize: pagination.value.pageSize,
+      // })
       let res = await gainAnswerByUser({
         username: searchForm.value.username,
         page: pagination.value.current,
         pageSize: pagination.value.pageSize,
         includeDeleted: 1,
       })
-      console.log(res)
+      // console.log(res)
       answers.value = res.content
       pagination.value.total = res.totalElements
     }
     else {
-      console.log(searchForm.value.username)
+      // console.log(searchForm.value.username)
       let res = await gainAnswer({
         page: pagination.value.current,
         pageSize: pagination.value.pageSize,
         includeDeleted: 1,
       })
-      console.log(res)
+      // console.log(res)
       answers.value = res.content
       pagination.value.total = res.totalElements
     }
@@ -233,7 +233,7 @@ const handleTableChange = (pag, filters, sorter) => {
 }
 
 const editAnswer = (record) => {
-  console.log('编辑回答', record.id)
+  // console.log('编辑回答', record.id)
   currentRecord.value = {
     id: record.id,
     content: record.content,
