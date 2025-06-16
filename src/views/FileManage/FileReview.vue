@@ -13,35 +13,22 @@
         
         <h3>基本信息</h3>
         <div class="meta-info">
-          <span>大小: 
-            <span v-if="!isEditing">{{ formatSize(fileInfo.size) }}</span>
-			<a-input-number 
-				v-else 
-				v-model:value="editableInfo.size"
-				addon-after="Bytes"
-				style="width: 150px"
-			/>
-          </span>
-          <span>上传者: 
-            <span v-if="!isEditing">{{ fileInfo.uploadUsername }}</span>
-            <a-input 
-              v-else 
-              v-model:value="editableInfo.uploadUsername"
-              style="display: inline-flex; width: 100px;"
-            />
-          </span>
-          <span>上传时间: 
-            <span v-if="!isEditing">{{ formatDate(fileInfo.uploadDate) }}</span>
-			<a-date-picker
-				v-else
-				v-model:value="editableInfo.uploadDate"
-				show-time
-				format="YYYY-MM-DD HH:mm"
-				value-format="YYYY-MM-DD HH:mm"
-			/>
-          </span>
-			<span class="tag-container">
-				<span>{{ fileInfo.tagNames.join(', ') }}</span>
+			<span>大小: {{ formatSize(fileInfo.size) }}</span>
+			<span>上传者: {{ fileInfo.uploadUsername }}</span>
+			<span>上传时间: 
+				<span v-if="!isEditing">{{ formatDate(fileInfo.uploadDate) }}</span>
+				<a-date-picker
+					v-else
+					v-model:value="editableInfo.uploadDate"
+					show-time
+					format="YYYY-MM-DD HH:mm"
+					value-format="YYYY-MM-DD HH:mm"
+					style="width: 160px"
+				/>
+			</span>
+			<span class="tag-container">标签: {{ fileInfo.tagNames.join(', ') }}</span>
+			<span>文件夹: {{ fileInfo.folderID || '无' }}
+				<!-- <span v-if="!isEditing">{{ fileInfo.folderID || '无' }}</span> -->
 			</span>
         </div>
 
@@ -75,48 +62,43 @@
           </span>
         </div>
         
-        <h3>权限设置</h3>
+        <h3>互动相关</h3>
         <div class="meta-info">
-          <span>评论: 
-            <span v-if="!isEditing">{{ fileInfo.isAllowComment ? '允许' : '禁止' }}</span>
-            <a-switch v-else v-model:checked="editableInfo.isAllowComment" />
-          </span>
-          <span>评分隐藏: 
-            <span v-if="!isEditing">{{ fileInfo.hideScore > 0 ? '是' : '否' }}</span>
-            <a-input-number v-else v-model:value="editableInfo.hideScore" />
-          </span>
-          <span>文件夹: 
-            <span v-if="!isEditing">{{ fileInfo.folderID || '无' }}</span>
-            <a-input 
-				v-else 
-				v-model:value="editableInfo.folderID"
-				type="number"
-				style="width: 100px"
-				onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-			/>
-          </span>
-        </div>
-
-        <h3>互动数据</h3>
-        <div class="meta-info">
-          <span>评分: {{ fileInfo.fileExtraEntity.score }}分({{ fileInfo.fileExtraEntity.ratersNum }}人)</span>
-          <span>阅读: {{ fileInfo.fileExtraEntity.readNum }}次</span>
-          <span>点赞: {{ fileInfo.fileExtraEntity.likeNum }}</span>
-          <span>下载: {{ fileInfo.fileExtraEntity.downloadNum }}次</span>
-          <span>收藏: {{ fileInfo.fileExtraEntity.collectionNum }}</span>
-          <span>评论数: {{ fileInfo.fileExtraEntity.commentNum }}</span>
+          	<span>评分: {{ fileInfo.fileExtraEntity.score }}分 ({{ fileInfo.fileExtraEntity.ratersNum }}人)</span>
+        	<span>隐藏分: {{ fileInfo.hideScore }}</span> 
+			<span>阅读:{{ fileInfo.fileExtraEntity.readNum }}次</span>
+			<span>点赞: {{ fileInfo.fileExtraEntity.likeNum }}</span>
+			<span>下载: {{ fileInfo.fileExtraEntity.downloadNum }}次</span>
+			<span>收藏: {{ fileInfo.fileExtraEntity.collectionNum }}</span>
+			<span>允许评论: 
+				<span v-if="!isEditing">{{ fileInfo.isAllowComment ? '是' : '否' }}</span>
+				<a-switch v-else v-model:checked="editableInfo.isAllowComment" />
+			</span>
+			<span>评论数: {{ fileInfo.fileExtraEntity.commentNum }}</span>
         </div>
         
         <h3>认证信息</h3>
         <div class="meta-info">
-          <span>专业认证: {{ fileInfo.fileExtraEntity.isProCert ? '是' : '否' }}</span>
-          <span>官方: {{ fileInfo.fileExtraEntity.isOfficial ? '是' : '否' }}</span>
-          <span>原创: {{ fileInfo.fileExtraEntity.isOriginal ? '是' : '否' }}</span>
-          <span>VIP收益: {{ fileInfo.fileExtraEntity.isVipIncome ? '开启' : '关闭' }}</span>
-		  <span>版权: 
-            <span v-if="!isEditing">{{ formatCopyright(fileInfo.fileExtraEntity.copyrightNotice) || '无' }}</span>
-            <a-input v-else v-model:value="editableInfo.fileExtraEntity.copyrightNotice" style="width: 150px" />
-          </span>
+			<span>专业认证: 
+				<span v-if="!isEditing">{{ fileInfo.fileExtraEntity.isProCert ? '是' : '否' }}</span>
+				<a-switch v-else v-model:checked="editableInfo.fileExtraEntity.isProCert" />
+			</span>
+			<span>官方: 
+				<span v-if="!isEditing">{{ fileInfo.fileExtraEntity.isOfficial ? '是' : '否' }}</span>
+				<a-switch v-else v-model:checked="editableInfo.fileExtraEntity.isOfficial" />
+			</span>
+			<span>原创: 
+				<span v-if="!isEditing">{{ fileInfo.fileExtraEntity.isOriginal ? '是' : '否' }}</span>
+				<a-switch v-else v-model:checked="editableInfo.fileExtraEntity.isOriginal" />
+			</span>
+			<span>VIP收益: 
+				<span v-if="!isEditing">{{ fileInfo.fileExtraEntity.isVipIncome ? '开启' : '关闭' }}</span>
+				<a-switch v-else v-model:checked="editableInfo.fileExtraEntity.isVipIncome" />
+			</span>
+			<span>版权: 
+				<span v-if="!isEditing">{{ formatCopyright(fileInfo.fileExtraEntity.copyrightNotice) || '无' }}</span>
+				<a-input v-else v-model:value="editableInfo.fileExtraEntity.copyrightNotice" style="width: 150px" />
+			</span>
         </div>
         
         <div class="abstract">
@@ -320,21 +302,28 @@ const loadFileInfo = async () => {
 
 // 重置编辑表单
 const resetEditableInfo = () => {
-  if (!fileInfo.value) return;
-  
-  const data = fileInfo.value;
-  Object.keys(editableInfo).forEach(key => {
-    if (key !== 'fileExtraEntity' && data[key] !== undefined) {
-      editableInfo[key] = data[key];
-    }
-  });
-  
-  if (data.fileExtraEntity) {
-    Object.assign(editableInfo.fileExtraEntity, data.fileExtraEntity);
-  }
-  
-  // 保存初始数据
-  initialData.value = JSON.parse(JSON.stringify(editableInfo));
+	if (!fileInfo.value) return;
+	
+	const data = fileInfo.value;
+	Object.keys(editableInfo).forEach(key => {
+		if (key !== 'fileExtraEntity' && data[key] !== undefined) {
+		editableInfo[key] = data[key];
+		}
+	});
+	
+	if (data.fileExtraEntity) {
+		Object.assign(editableInfo.fileExtraEntity, data.fileExtraEntity);
+	}
+	editableInfo.isAllowAnon = Boolean(fileInfo.value.isAllowAnon);
+	editableInfo.isAllowComment = Boolean(fileInfo.value.isAllowComment);
+	editableInfo.isAllowVipfree = Boolean(fileInfo.value.isAllowVipfree);
+	editableInfo.fileExtraEntity.isOfficial = Boolean(fileInfo.value.fileExtraEntity.isOfficial);
+	editableInfo.fileExtraEntity.isOriginal = Boolean(fileInfo.value.fileExtraEntity.isOriginal);
+	editableInfo.fileExtraEntity.isProCert = Boolean(fileInfo.value.fileExtraEntity.isProCert);
+	editableInfo.fileExtraEntity.isVipIncome = Boolean(fileInfo.value.fileExtraEntity.isVipIncome);
+
+	// 保存初始数据
+	initialData.value = JSON.parse(JSON.stringify(editableInfo));
 };
 
 // 切换编辑模式
@@ -353,76 +342,74 @@ const toggleEditMode = () => {
 
 // 提交修改
 const submitChanges = async () => {
-  try {
-    loading.value = true;
-    
-    // 1. 收集修改过的字段
-    const delta = {};
-    
-    // 比较顶层字段
-    Object.keys(editableInfo).forEach(key => {
-      if (key === 'fileExtraEntity') return;
-      
-      // 特殊处理日期字段
-      if (key === 'uploadDate') {
-        const initialDate = initialData.value[key] ? dayjs(initialData.value[key]).format('YYYY-MM-DD') : null;
-        const currentDate = editableInfo[key] ? dayjs(editableInfo[key]).format('YYYY-MM-DD') : null;
-        if (initialDate !== currentDate) {
-          delta[key] = editableInfo[key];
-        }
-        return;
-      }
-      
-      // 普通字段比较
-      if (JSON.stringify(editableInfo[key]) !== JSON.stringify(initialData.value[key])) {
-        delta[key] = editableInfo[key];
-      }
-    });
-    
-    // 比较嵌套对象
-    const extraDelta = {};
-    Object.keys(editableInfo.fileExtraEntity).forEach(key => {
-      if (JSON.stringify(editableInfo.fileExtraEntity[key]) !== JSON.stringify(initialData.value.fileExtraEntity[key])) {
-        extraDelta[key] = editableInfo.fileExtraEntity[key];
-      }
-    });
-    
-    if (Object.keys(extraDelta).length > 0) {
-      delta.fileExtraEntity = extraDelta;
-    }
-    
-    // 2. 检查是否有实际修改
-    if (Object.keys(delta).length === 0) {
-      message.info('未检测到任何修改');
-      isEditing.value = false;
-      return;
-    }
-    
-    // 3. 提交修改
-    const res = await postFileInfoChange(
-      fileInfo.value.fileID, 
-      delta.paymentAmount || fileInfo.value.paymentAmount,
-      delta,
-      fileInfo.value.uploadUsername
-    );
-    
-    if (res) {
-      message.success('修改成功');
-      // 更新本地数据
-      Object.assign(fileInfo.value, delta);
-      if (delta.fileExtraEntity) {
-        Object.assign(fileInfo.value.fileExtraEntity, delta.fileExtraEntity);
-      }
-      isEditing.value = false;
-    } else {
-      message.error('修改失败');
-    }
-  } catch (err) {
-    console.error('提交修改失败:', err);
-    message.error(`修改失败: ${err.message}`);
-  } finally {
-    loading.value = false;
-  }
+	try {
+		loading.value = true;
+		
+		// 1. 收集修改过的字段
+		const delta = {};
+		
+		// 比较顶层字段
+		Object.keys(editableInfo).forEach(key => {
+			if (key === 'fileExtraEntity') return;
+			
+			// 特殊处理日期字段
+			if (key === 'uploadDate') {
+				const initialDate = initialData.value[key] ? dayjs(initialData.value[key]).format('YYYY-MM-DD') : null;
+				const currentDate = editableInfo[key] ? dayjs(editableInfo[key]).format('YYYY-MM-DD') : null;
+				if (initialDate !== currentDate) {
+				delta[key] = editableInfo[key];
+				}
+				return;
+			}
+			
+			// 普通字段比较
+			if (JSON.stringify(editableInfo[key]) !== JSON.stringify(initialData.value[key])) {
+				delta[key] = editableInfo[key];
+			}
+		});
+		
+		// 比较嵌套对象
+		const extraDelta = {};
+		Object.keys(editableInfo.fileExtraEntity).forEach(key => {
+			if (JSON.stringify(editableInfo.fileExtraEntity[key]) !== JSON.stringify(initialData.value.fileExtraEntity[key])) {
+				extraDelta[key] = editableInfo.fileExtraEntity[key];
+			}
+		});
+		
+		if (Object.keys(extraDelta).length > 0) {
+			delta.fileExtraEntity = extraDelta;
+		}
+		
+		// 2. 检查是否有实际修改
+		if (Object.keys(delta).length === 0) {
+			message.info('未检测到任何修改');
+			isEditing.value = false;
+			return;
+		}
+		// 3. 提交修改
+		const res = await postFileInfoChange(
+			fileInfo.value.fileID, 
+			editableInfo,
+			fileInfo.value.uploadUsername
+		);
+		
+		if (res) {
+		message.success('修改成功');
+		// 更新本地数据
+		Object.assign(fileInfo.value, delta);
+		if (delta.fileExtraEntity) {
+			Object.assign(fileInfo.value.fileExtraEntity, editableInfo.fileExtraEntity);
+		}
+			isEditing.value = false;
+		} else {
+			message.error('修改失败');
+		}
+	} catch (err) {
+		console.error('提交修改失败:', err);
+		message.error(`修改失败: ${err.message}`);
+	} finally {
+		loading.value = false;
+	}
 };
 
 // 初始化加载
